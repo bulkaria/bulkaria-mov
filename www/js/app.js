@@ -1,13 +1,20 @@
-// Ionic Starter App
+// Ionic bulkaria-mov App
 
 // angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
+// 'bulkaria-mov' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-// 'starter.services' is found in services.js
-// 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
+// 'bulkaria-mov.services' is found in services.js
+// 'bulkaria-mov.controllers' is found in controllers.js
+angular.module('bulkaria-mov', ['ionic', 'bulkaria-mov.controllers', 'bulkaria-mov.services', 'firebase'])
 
-.run(function($ionicPlatform) {
+.factory("Auth", ["$firebaseAuth", "$rootScope",
+  function ($firebaseAuth, $rootScope) {
+    var ref = new Firebase(firebaseUrl);
+    return $firebaseAuth(ref);
+  }
+]);
+
+.run(function($ionicPlatform, $rootScope) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -17,6 +24,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
     if (window.StatusBar) {
       // org.apache.cordova.statusbar required
       StatusBar.styleDefault();
+    }
+    $rootScope.logout = function () {
+        console.log("Logging out from the app");
     }
   });
 })
@@ -28,6 +38,20 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
   // Set up the various states which the app can be in.
   // Each state's controller can be found in controllers.js
   $stateProvider
+
+  // State to represent Login View
+  .state('login', {
+      url: "/login",
+      templateUrl: "templates/login.html",
+      controller: 'LoginCtrl'
+  })
+
+  // State to represent Select Group View
+  .state('groups', {
+      url: "/groups",
+      templateUrl: "templates/groups.html",
+      controller: 'GroupsCtrl'
+  })
 
   // setup an abstract state for the tabs directive
     .state('tab', {
@@ -78,6 +102,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
   });
 
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/tab/dash');
+  $urlRouterProvider.otherwise('/login');
 
 });

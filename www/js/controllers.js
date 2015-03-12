@@ -1,4 +1,23 @@
-angular.module('starter.controllers', [])
+angular.module('bulkaria-mov.controllers', [])
+
+
+.controller('LoginCtrl', function ($scope, $ionicModal, $state) {
+  console.log('Login Controller Initialized');
+
+  $ionicModal.fromTemplateUrl('templates/signup.html', {
+      scope: $scope
+  }).then(function (modal) {
+      $scope.modal = modal;
+  });
+
+  $scope.createUser = function (user) {
+
+  }
+
+  $scope.signIn = function () {
+      $state.go('tab.rooms');
+  }
+})
 
 .controller('DashCtrl', function($scope) {})
 
