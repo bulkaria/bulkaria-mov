@@ -43,21 +43,53 @@ angular.module('bulkaria-mov', ['ionic', 'bulkaria-mov.controllers', 'bulkaria-m
   .state('login', {
       url: "/login",
       templateUrl: "templates/login.html",
-      controller: 'LoginCtrl'
+      controller: 'LoginCtrl',
+      resolve: {
+          // controller will not be loaded until $waitForAuth resolves
+          // Auth refers to our $firebaseAuth wrapper in the example above
+          "currentAuth": ["Auth",
+              function (Auth) {
+                  // $waitForAuth returns a promise so the resolve waits for it to complete
+                  return Auth.$waitForAuth();
+              }
+          ]
+      }    
   })
 
   // State to represent Select Group View
   .state('groups', {
       url: "/groups",
       templateUrl: "templates/groups.html",
-      controller: 'GroupsCtrl'
+      controller: 'GroupsCtrl',
+      resolve: {
+        // controller will not be loaded until $requireAuth resolves
+        // Auth refers to our $firebaseAuth wrapper in the example above
+        "currentAuth": ["Auth",
+          function (Auth) {
+            // $requireAuth returns a promise so the resolve waits for it to complete
+            // If the promise is rejected, it will throw a $stateChangeError (see above)
+            return Auth.$requireAuth();
+          }
+        ]
+      }    
   })
 
   // setup an abstract state for the tabs directive
-    .state('tab', {
+  .state('tab', {
     url: "/tab",
     abstract: true,
-    templateUrl: "templates/tabs.html"
+    templateUrl: "templates/tabs.html",
+    resolve: {
+      // controller will not be loaded until $requireAuth resolves
+      // Auth refers to our $firebaseAuth wrapper in the example above
+      "currentAuth": ["Auth",
+        function (Auth) {
+          // $requireAuth returns a promise so the resolve waits for it to complete
+          // If the promise is rejected, it will throw a $stateChangeError (see above)
+          return Auth.$requireAuth();
+        }
+      ]
+    }    
   })
 
   // Each tab has its own nav history stack:
