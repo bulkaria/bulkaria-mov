@@ -1,118 +1,121 @@
 angular.module('bulkaria-mov.controllers', [])
 
 .controller('LoginCtrl', function ($scope, $ionicModal, $state, $firebaseAuth, $ionicLoading, $rootScope) {
-    //console.log('Login Controller Initialized');
+  //console.log('Login Controller Initialized');
 
-    var ref = new Firebase($scope.firebaseUrl);
-    var auth = $firebaseAuth(ref);
+  var ref = new Firebase($scope.firebaseUrl);
+  var auth = $firebaseAuth(ref);
+  $scope.user = {email: 'test1@foo.com', pwdForLogin: '1234'};
 
-    $ionicModal.fromTemplateUrl('templates/signup.html', {
-        scope: $scope
-    }).then(function (modal) {
-        $scope.modal = modal;
-    });
+  $ionicModal.fromTemplateUrl('templates/signup.html', {
+    scope: $scope
+  }).then(function (modal) {
+    $scope.modal = modal;
+  });
 
-    $scope.createUser = function (user) {
-        console.log("Create User Function called");
-        if (user && user.email && user.password && user.displayname) {
-            $ionicLoading.show({
-                template: 'Signing Up...'
-            });
+  $scope.createUser = function (user) {
+    console.log("Create User Function called");
+    if (user && user.email && user.password && user.displayname) {
+      //$ionicLoading.show({
+      //  template: 'Signing Up...'
+      //});
+      $ionicLoading.show();
 
-            auth.$createUser({
-                email: user.email,
-                password: user.password
-            }).then(function (userData) {
-                alert("User created successfully!");
-                ref.child("users").child(userData.uid).set({
-                    email: user.email,
-                    displayName: user.displayname
-                });
-                $ionicLoading.hide();
-                $scope.modal.hide();
-            }).catch(function (error) {
-                alert("Error: " + error);
-                $ionicLoading.hide();
-            });
-        } else
-            alert("Please fill all details");
-    }
+      auth.$createUser({
+        email: user.email,
+        password: user.password
+      }).then(function (userData) {
+        alert("User created successfully!");
+        ref.child("users").child(userData.uid).set({
+          email: user.email,
+          displayName: user.displayname
+        });
+        $ionicLoading.hide();
+        $scope.modal.hide();
+      }).catch(function (error) {
+        alert("Error: " + error);
+        $ionicLoading.hide();
+      });
+    } else
+      alert("Please fill all details");
+  }
 
-    $scope.signIn = function (user) {
+  $scope.signIn = function (user) {
 
-        if (user && user.email && user.pwdForLogin) {
-            $ionicLoading.show({
-                template: 'Signing In...'
-            });
-            auth.$authWithPassword({
-                email: user.email,
-                password: user.pwdForLogin
-            }).then(function (authData) {
-                console.log("Logged in as:" + authData.uid);
-                ref.child("users").child(authData.uid).once('value', function (snapshot) {
-                    var val = snapshot.val();
-                    // To Update AngularJS $scope either use $apply or $timeout
-                    $scope.$apply(function () {
-                        $rootScope.displayName = val;
-                    });
-                });
-                $ionicLoading.hide();
-                $state.go('groups');
-            }).catch(function (error) {
-                alert("Authentication failed:" + error.message);
-                $ionicLoading.hide();
-            });
-        } else
-            alert("Please enter email and password both");
-    }
+    if (user && user.email && user.pwdForLogin) {
+      //$ionicLoading.show({
+      //  template: 'Signing In...'
+      //});
+      $ionicLoading.show();
+      auth.$authWithPassword({
+        email: user.email,
+        password: user.pwdForLogin
+      }).then(function (authData) {
+        console.log("Logged in as:" + authData.uid);
+        ref.child("users").child(authData.uid).once('value', function (snapshot) {
+          var val = snapshot.val();
+          // To Update AngularJS $scope either use $apply or $timeout
+          $scope.$apply(function () {
+            $rootScope.displayName = val;
+          });
+        });
+        $ionicLoading.hide();
+        $state.go('groups');
+      }).catch(function (error) {
+        alert("Authentication failed:" + error.message);
+        $ionicLoading.hide();
+      });
+    } else
+      alert("Please enter email and password both");
+  }
 })
 
 .controller('ChatCtrl', function ($scope, Chats, $state) {
-    //console.log("Chat Controller initialized");
+  //console.log("Chat Controller initialized");
 
-    $scope.IM = {
-        textMessage: ""
-    };
+  $scope.IM = {
+    textMessage: ""
+  };
 
-    Chats.selectRoom($state.params.roomId);
+  Chats.selectRoom($state.params.roomId);
 
-    var roomName = Chats.getSelectedRoomName();
+  var roomName = Chats.getSelectedRoomName();
 
-    // Fetching Chat Records only if a Room is Selected
-    if (roomName) {
-        $scope.roomName = " - " + roomName;
-        $scope.chats = Chats.all();
-    }
+  // Fetching Chat Records only if a Room is Selected
+  if (roomName) {
+    $scope.roomName = " - " + roomName;
+    $scope.chats = Chats.all();
+  }
 
-    $scope.sendMessage = function (msg) {
-        console.log(msg);
-        Chats.send($scope.displayName, msg);
-        $scope.IM.textMessage = "";
-    }
+  $scope.sendMessage = function (msg) {
+    console.log(msg);
+    Chats.send($scope.displayName, msg);
+    $scope.IM.textMessage = "";
+  }
 
-    $scope.remove = function (chat) {
-        Chats.remove(chat);
-    }
+  $scope.remove = function (chat) {
+    Chats.remove(chat);
+  }
 })
 
 .controller('RoomsCtrl', function ($scope, Rooms, Chats, $state) {
-    //console.log("Rooms Controller initialized");
-    $scope.rooms = Rooms.all();
+  //console.log("Rooms Controller initialized");
+  $scope.rooms = Rooms.all();
 
-    $scope.openChatRoom = function (roomId) {
-        $state.go('tab.chat', {
-            roomId: roomId
-        });
-    }
+  $scope.openChatRoom = function (roomId) {
+    $state.go('tab.chat', {
+      roomId: roomId
+    });
+  }
 })
 
 .controller('GroupsCtrl', function ($scope, Groups, $state) {
-    console.log("Groups Controller initialized");
-    $scope.groups = Groups.all();
+  console.log("Groups Controller initialized");
+  $scope.groups = Groups.all();
 
-    $scope.openGroup = function (groupId) {
-        $state.go('tabs', {
-            groupId: groupId
-        });
-    }
+  $scope.openGroup = function (groupId) {
+    $state.go('tabs', {
+      groupId: groupId
+    });
+  }
 });

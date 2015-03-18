@@ -8,12 +8,10 @@
         </div>
         <div class="list card padding">
             <label class="item item-input">
-                <span class="input-label">Email</span>
-                <input type="text" ng-model="user.email">
+                <input type="text" ng-model="user.email" placeholder="Correo electrónico">
             </label>
             <label class="item item-input">
-                <span class="input-label">Password</span>
-                <input type="password" ng-model="user.pwdForLogin">
+                <input type="password" ng-model="user.pwdForLogin" placeholder="Contraseña">
             </label>
             <button ng-click="signIn(user)" class="button button-block button-positive activated">
                 Sign In
