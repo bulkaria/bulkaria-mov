@@ -13,24 +13,27 @@
       <label class="item item-input">
         <input type="password" ng-model="user.pwdForLogin" placeholder="Contraseña">
       </label>
-      <button ng-click="signIn(user)" class="button button-block button-positive activated">
+      <button ng-click="signIn(user)" class="button button-block button-dark activated">
         Sign In
       </button>
       <p class="logoText">OR</p>
-      <button ng-click="login('facebook')" class="button button-block button-positive activated">
-        Sign in with <b>Facebook</b>
+      <button ng-click="login('facebook')" class="button button-block button-positive ion-social-facebook activated">
+        &nbsp;&nbsp;Sign in with <b>Facebook</b>
       </button>
-      <button ng-click="login('google')" class="button button-block button-positive activated">
-        Sign in with <b>Google+</b>
+      <button ng-click="login('google')" class="button button-block button-assertive ion-social-googleplus activated">
+        &nbsp;&nbsp;Sign in with <b>Google+</b>
       </button>
-      <button ng-click="login('twitter')" class="button button-block button-positive activated">
-        Sign in with <b>Twitter</b>
+      <button ng-click="login('twitter')" class="button button-block button-calm ion-social-twitter activated">
+        &nbsp;&nbsp;Sign in with <b>Twitter</b>
       </button>
     </div>
     <div class="list" style="text-align:center">
-      <button ng-click="modal.show()" class="button button-small button-outline icon-left ion-person-add button-positive">
+      <button ng-click="signUp()" class="button button-small button-outline icon-left ion-person-add button-black">
         Create New Account
       </button>
+      <button ng-click="forgotPassword()" class="button button-small button-outline icon-left ion-ios-help button-black">
+        Forgot password
+      </button>      
     </div>
   </ion-content>
 </ion-view>
