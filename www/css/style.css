@@ -1,29 +1,69 @@
 #mainContainer {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	max-width: 500px;
-	margin-left: auto;
-	margin-right: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
+
 .logo {
-    display: block;
-    position: relative;
-    width: 30%;
-    margin: 0 auto;
+  display: block;
+  position: relative;
+  width: 30%;
+  margin: 0 auto;
 }
+
 .logoText {
-    text-align: center;
-    font-size: 28px;
-    font-family: fantasy;
+  text-align: center;
+  font-size: 28px;
+  font-family: fantasy;
 }
+
 .item-note {
-    font-size: 10px;
-    margin-top: -22px;
-    margin-right: -35px;
+  font-size: 10px;
+  margin-top: -22px;
+  margin-right: -35px;
 }
+
 .textCenter {
-    text-align: center;
+  text-align: center;
 }
+
+// Customs alert
+.custom-alert .popup-body {
+  overflow: auto;
+}
+
+.custom-alert .popup-head {
+  border-color: #111;
+}
+
+// Errors
+form i.icon.error {
+  color: #ef4e3a;
+}
+
+form input + i.icon.error {
+  display: none;
+  margin-left: 8px;
+}
+
+form.ng-submitted input.ng-invalid + i.icon.error {
+  display: block;
+}
+
+form .has-error {
+  border-left: 5px solid #cc2511;
+}
+
+form .has-success {
+  border-left: 5px solid #3d8b3d;
+}
+
+form.ng-submitted input.ng-valid + i.icon.error {
+  display: none;
+}
+

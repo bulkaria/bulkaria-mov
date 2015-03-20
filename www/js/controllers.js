@@ -1,6 +1,6 @@
 angular.module('bulkaria-mov.controllers', [])
 
-.controller('LoginCtrl', function ($scope, $ionicModal, $state, $firebaseAuth, $ionicLoading, $rootScope) {
+.controller('LoginCtrl', function ($scope, $ionicModal, $ionicPopup, $state, $firebaseAuth, $ionicLoading, $rootScope) {
   //console.log('Login Controller Initialized');
 
   var ref = new Firebase($scope.firebaseUrl);
@@ -10,42 +10,6 @@ angular.module('bulkaria-mov.controllers', [])
     pwdForLogin: '1234'
   };
 
-  //$ionicModal.fromTemplateUrl('templates/signup.html', {
-  //  scope: $scope
-  //}).then(function (modal) {
-  //  $scope.modal = modal;
-  //});
-
-  //$ionicModal.fromTemplateUrl('templates/modal-on-login.html', {
-  //  scope: $scope,
-  //  animation: 'slide-in-up'
-  //}).then(function (modal) {
-  //  $scope.modal = modal;
-  //  $scope.showModalContent = true;
-  //});
-
-  //$scope.modalShow = function (modalForm) {
-  //  switch (modalForm) {
-  //  case "signup":
-  //    $scope.modalTemplate = 'templates/signup.html'
-  //    break;
-  //  case "resetPassword":
-  //    $scope.modalTemplate = 'templates/reset-password.html'
-  //  }
-  //  $scope.modal.show();
-  //};
-
-  // patch for modal refresh
-  //$scope.$on('modal.hidden', function() {
-  //  $scope.showModalContent = false;
-  //});
-  //
-  //$scope.$on('modal.shown', function() {
-  //  setTimeout(function () {
-  //    $scope.showModalContent = true
-  //  }, 500);
-  //});
-  
   $scope.signIn = function (user) {
     if (user && user.email && user.pwdForLogin) {
       $ionicLoading.show();
@@ -64,11 +28,11 @@ angular.module('bulkaria-mov.controllers', [])
         $ionicLoading.hide();
         $state.go('groups');
       }).catch(function (error) {
-        alert("Authentication failed:" + error.message);
+        $scope.showAlert("Authentication failed", error.message);
         $ionicLoading.hide();
       });
     } else
-      alert("Please enter email and password both");
+      $scope.showAlert("Authentication failed", "Please enter email and password both");
   };
 
   $scope.signUp = function() {
@@ -90,19 +54,22 @@ angular.module('bulkaria-mov.controllers', [])
         email: user.email,
         password: user.password
       }).then(function (userData) {
-        alert("User created successfully!");
+        $scope.showAlert("Create User", "User created successfully!");
+        
         ref.child("users").child(userData.uid).set({
           email: user.email,
           displayName: user.displayname
         });
+        
         $ionicLoading.hide();
         $scope.modal.hide();
+        
       }).catch(function (error) {
-        alert("Error: " + error);
+        $scope.showAlert("Create User Error", error);
         $ionicLoading.hide();
       });
     } else
-      alert("Please fill all details");
+      $scope.showAlert("Create User Error", "Please fill all details");
   }
   
   $scope.forgotPassword = function () {
@@ -130,8 +97,17 @@ angular.module('bulkaria-mov.controllers', [])
       $ionicLoading.hide();
       $scope.modal.hide();
     } else
-      alert("Please fill email");
-  }
+      $scope.showAlert("Reset Password", "Please fill email");
+  };
+  
+  $scope.showAlert = function (title, message) {
+    var alertPopup = $ionicPopup.alert({
+      title: title,
+      template: message,
+      cssClass: 'custom-alert',
+      okType: 'button-dark'
+    });
+  };  
   
 })
 

@@ -2,20 +2,24 @@
   <ion-content class="padding">
     <div class="list">
       <img src="img/logo1.png" class="logo">
-      <div class="logoText">
+      <!-- div class="logoText">
         Bulkaria Estudiantil
-      </div>
+      </div -->
     </div>
     <div class="list card padding">
-      <label class="item item-input">
-        <input type="text" ng-model="user.email" placeholder="Correo electrónico">
-      </label>
-      <label class="item item-input">
-        <input type="password" ng-model="user.pwdForLogin" placeholder="Contraseña">
-      </label>
-      <button ng-click="signIn(user)" class="button button-block button-dark activated">
-        Sign In
-      </button>
+      <form novalidate="novalidate" on-valid-submit="signIn(user)">
+        <label class="item item-input validated">
+          <input type="email" ng-model="user.email" required="required" name="email" placeholder="email">
+          <i class="icon ion-alert-circled error"></i>        
+        </label>
+        <label class="item item-input validated">
+          <input type="password" ng-model="user.pwdForLogin" name="password" required="required" placeholder="password">
+          <i class="icon ion-alert-circled error"></i>          
+        </label>
+        <button type="submit" class="button button-block button-dark activated">
+          Sign In
+        </button>
+      </form>
       <p class="logoText">OR</p>
       <button ng-click="login('facebook')" class="button button-block button-positive ion-social-facebook activated">
         &nbsp;&nbsp;Sign in with <b>Facebook</b>
@@ -33,7 +37,7 @@
       </button>
       <button ng-click="forgotPassword()" class="button button-small button-outline icon-left ion-ios-help button-black">
         Forgot password
-      </button>      
+      </button>
     </div>
   </ion-content>
 </ion-view>
