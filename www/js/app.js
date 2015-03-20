@@ -23,7 +23,7 @@ angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-
     //showDelay: 500
 })
 
-.run(function ($ionicPlatform, $rootScope, $location, Auth, $ionicLoading) {
+.run(function ($ionicPlatform, $rootScope, $location, Auth, $ionicLoading, $ionicHistory) {
   $ionicPlatform.ready(function () {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -42,19 +42,18 @@ angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-
 
     Auth.$onAuth(function (authData) {
       if (authData) {
-        console.log("Logged in as:", authData.uid);
+        console.log(">> Logged in as:", authData.uid);
+        $ionicHistory.clearCache();
       } else {
         console.log("Logged out");
         $ionicLoading.hide();
+        $ionicHistory.clearCache();
         $location.path('/login');
       }
     });
 
     $rootScope.logout = function () {
       console.log("Logging out from the app");
-      //$ionicLoading.show({
-      //  template: 'Logging Out...'
-      //});
       $ionicLoading.show();
       Auth.$unauth();
     }
@@ -63,6 +62,7 @@ angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-
       // We can catch the error thrown when the $requireAuth promise is rejected
       // and redirect the user back to the home page
       if (error === "AUTH_REQUIRED") {
+        $ionicHistory.clearCache();
         $location.path("/login");
       }
     });

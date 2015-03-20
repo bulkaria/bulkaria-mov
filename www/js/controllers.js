@@ -35,16 +35,16 @@ angular.module('bulkaria-mov.controllers', [])
       $scope.showAlert("Authentication failed", "Please enter email and password both");
   };
 
-  $scope.signUp = function() {
+  $scope.signUp = function () {
     $ionicModal.fromTemplateUrl('templates/signup.html', {
       scope: $scope,
       animation: 'slide-in-up'
     }).then(function (modal) {
       $scope.modal = modal;
       modal.show();
-    });    
+    });
   };
-  
+
   $scope.createUser = function (user) {
     console.log("Create User Function called");
     if (user && user.email && user.password && user.displayname) {
@@ -55,15 +55,15 @@ angular.module('bulkaria-mov.controllers', [])
         password: user.password
       }).then(function (userData) {
         $scope.showAlert("Create User", "User created successfully!");
-        
+
         ref.child("users").child(userData.uid).set({
           email: user.email,
           displayName: user.displayname
         });
-        
+
         $ionicLoading.hide();
         $scope.modal.hide();
-        
+
       }).catch(function (error) {
         $scope.showAlert("Create User Error", error);
         $ionicLoading.hide();
@@ -71,7 +71,7 @@ angular.module('bulkaria-mov.controllers', [])
     } else
       $scope.showAlert("Create User Error", "Please fill all details");
   }
-  
+
   $scope.forgotPassword = function () {
     $ionicModal.fromTemplateUrl('templates/reset-password.html', {
       scope: $scope,
@@ -81,25 +81,25 @@ angular.module('bulkaria-mov.controllers', [])
       modal.show();
     });
   };
-  
+
   $scope.resetPassword = function (resetEmail) {
     if (resetEmail) {
       $ionicLoading.show();
       ref.resetPassword({
-        email : resetEmail
-        }, function(error) {
-          if (error === null) {
-            console.log("Password reset email sent successfully");
-          } else {
-            console.log("Error sending password reset email:", error);
-          }
-        });
+        email: resetEmail
+      }, function (error) {
+        if (error === null) {
+          console.log("Password reset email sent successfully");
+        } else {
+          console.log("Error sending password reset email:", error);
+        }
+      });
       $ionicLoading.hide();
       $scope.modal.hide();
     } else
       $scope.showAlert("Reset Password", "Please fill email");
   };
-  
+
   $scope.showAlert = function (title, message) {
     var alertPopup = $ionicPopup.alert({
       title: title,
@@ -107,8 +107,8 @@ angular.module('bulkaria-mov.controllers', [])
       cssClass: 'custom-alert',
       okType: 'button-dark'
     });
-  };  
-  
+  };
+
 })
 
 .controller('ChatCtrl', function ($scope, Chats, $state) {
@@ -152,6 +152,7 @@ angular.module('bulkaria-mov.controllers', [])
 
 .controller('GroupsCtrl', function ($scope, Groups, $state) {
   console.log("Groups Controller initialized");
+
   $scope.groups = Groups.all();
 
   $scope.openGroup = function (groupId) {

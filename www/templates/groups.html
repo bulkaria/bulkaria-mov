@@ -1,15 +1,20 @@
 <ion-view view-title="Groups">
-    <ion-content>
-        <ion-list ng-show="groups">
-            <ion-item class="item-icon-left" ng-repeat="group in groups" type="item-text-wrap" ng-click="openChatRoom(room.id)">
-                <i class="icon {{room.icon}}"></i>
-                <h2>{{group.name}}</h2>
-            </ion-item>
-        </ion-list>
-        <ion-list ng-hide="rooms.length">
-            <ion-item class="textCenter">
-                <i class="icon ion-loading-c"></i> Loading groups
-            </ion-item>
-        </ion-list>
-    </ion-content>
+  <ion-content>
+    <ion-list ng-show="groups">
+      <ion-item class="item-icon-left" ng-repeat="group in groups" type="item-text-wrap" ng-click="openChatRoom(room.id)">
+        <i class="icon {{group.icon}}"></i>
+        <h2>{{group.name}}</h2>
+      </ion-item>
+    </ion-list>
+    <ion-list ng-hide="groups.length">
+      <ion-item class="textCenter">
+        <i class="icon ion-loading-c"></i> Loading groups
+      </ion-item>
+    </ion-list>
+    <ion-list ng-hide="!groups.length">
+      <ion-item class="textCenter" ng-click="logout()">
+        <i class="icon ion-log-out"></i> Logout
+      </ion-item>
+    </ion-list>
+  </ion-content>
 </ion-view>
