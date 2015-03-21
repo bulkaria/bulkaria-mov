@@ -1,4 +1,4 @@
-<ion-view view-title="Login">
+<ion-view view-title="{{ 'Login' | translate }}">
   <ion-content class="padding">
     <div class="list">
       <img src="img/logo1.png" class="logo">
@@ -9,33 +9,33 @@
     <div class="list card padding">
       <form novalidate="novalidate" on-valid-submit="signIn(user)">
         <label class="item item-input validated">
-          <input type="email" ng-model="user.email" required="required" name="email" placeholder="email">
+          <input type="email" ng-model="user.email" required="required" name="email" placeholder="{{ 'email' | translate }}" translate>
           <i class="icon ion-alert-circled error"></i>        
         </label>
         <label class="item item-input validated">
-          <input type="password" ng-model="user.pwdForLogin" name="password" required="required" placeholder="password">
+          <input type="password" ng-model="user.pwdForLogin" name="password" required="required" placeholder="{{ 'password' | translate }}" translate>
           <i class="icon ion-alert-circled error"></i>          
         </label>
-        <button type="submit" class="button button-block button-dark activated">
+        <button type="submit" class="button button-block button-dark activated" translate>
           Sign In
         </button>
       </form>
-      <p class="logoText">OR</p>
-      <button ng-click="login('facebook')" class="button button-block button-positive ion-social-facebook activated">
+      <p class="logoText" translate>OR</p>
+      <button ng-click="login('facebook')" class="button button-block button-positive ion-social-facebook activated" translate>
         &nbsp;&nbsp;Sign in with <b>Facebook</b>
       </button>
-      <button ng-click="login('google')" class="button button-block button-assertive ion-social-googleplus activated">
+      <button ng-click="login('google')" class="button button-block button-assertive ion-social-googleplus activated" translate>
         &nbsp;&nbsp;Sign in with <b>Google+</b>
       </button>
-      <button ng-click="login('twitter')" class="button button-block button-calm ion-social-twitter activated">
+      <button ng-click="login('twitter')" class="button button-block button-calm ion-social-twitter activated" translate>
         &nbsp;&nbsp;Sign in with <b>Twitter</b>
       </button>
     </div>
     <div class="list" style="text-align:center">
-      <button ng-click="signUp()" class="button button-small button-outline icon-left ion-person-add button-black">
+      <button ng-click="signUp()" class="button button-small button-outline icon-left ion-person-add button-black" translate>
         Create New Account
       </button>
-      <button ng-click="forgotPassword()" class="button button-small button-outline icon-left ion-ios-help button-black">
+      <button ng-click="forgotPassword()" class="button button-small button-outline icon-left ion-ios-help button-black" translate>
         Forgot password
       </button>
     </div>

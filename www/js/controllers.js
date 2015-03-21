@@ -1,6 +1,6 @@
 angular.module('bulkaria-mov.controllers', [])
 
-.controller('LoginCtrl', function ($scope, $ionicModal, $ionicPopup, $state, $firebaseAuth, $ionicLoading, $rootScope) {
+.controller('LoginCtrl', function ($scope, $ionicModal, $ionicPopup, $state, $firebaseAuth, $ionicLoading, $rootScope, uuid2) {
   //console.log('Login Controller Initialized');
 
   var ref = new Firebase($scope.firebaseUrl);
@@ -22,7 +22,7 @@ angular.module('bulkaria-mov.controllers', [])
           var val = snapshot.val();
           // To Update AngularJS $scope either use $apply or $timeout
           $scope.$apply(function () {
-            $rootScope.displayName = val;
+            $rootScope.currentUser = val;
           });
         });
         $ionicLoading.hide();
@@ -47,20 +47,24 @@ angular.module('bulkaria-mov.controllers', [])
 
   $scope.createUser = function (user) {
     console.log("Create User Function called");
-    if (user && user.email && user.password && user.displayname) {
+    if (user && user.email && (user.nickName || user.firstName)) {
+      var setDisplayName = user.nickName || user.firstName;
+
       $ionicLoading.show();
 
       auth.$createUser({
         email: user.email,
-        password: user.password
+        password: uuid2.newuuid()
       }).then(function (userData) {
-        $scope.showAlert("Create User", "User created successfully!");
-
         ref.child("users").child(userData.uid).set({
           email: user.email,
-          displayName: user.displayname
+          displayName: setDisplayName,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          nickName: user.nickName
         });
 
+        $scope.showAlert("Create User", "User created successfully!");        
         $ionicLoading.hide();
         $scope.modal.hide();
 
@@ -102,8 +106,8 @@ angular.module('bulkaria-mov.controllers', [])
 
   $scope.showAlert = function (title, message) {
     var alertPopup = $ionicPopup.alert({
-      title: title,
-      template: message,
+      title: "<b>" + title + "</b>",
+      template: "<translate>" + message + "</translate>",
       cssClass: 'custom-alert',
       okType: 'button-dark'
     });
@@ -113,7 +117,6 @@ angular.module('bulkaria-mov.controllers', [])
 
 .controller('ChatCtrl', function ($scope, Chats, $state) {
   //console.log("Chat Controller initialized");
-
   $scope.IM = {
     textMessage: ""
   };

@@ -11,7 +11,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
 
 // 'bulkaria-mov.services' is found in services.js
 // 'bulkaria-mov.controllers' is found in controllers.js
-angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-mov.controllers', 'bulkaria-mov.services'])
+angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-mov.controllers', 'bulkaria-mov.services', 'gettext', 'angularUUID2'])
 
 // Test here differents spinners for $ionicLoading service
 .constant('$ionicLoadingConfig', {
@@ -23,7 +23,7 @@ angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-
     //showDelay: 500
 })
 
-.run(function ($ionicPlatform, $rootScope, $location, Auth, $ionicLoading, $ionicHistory) {
+.run(function ($ionicPlatform, $rootScope, $location, Auth, $ionicLoading, $ionicHistory, gettextCatalog) {
   $ionicPlatform.ready(function () {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -37,8 +37,13 @@ angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-
     // To Resolve Bug
     ionic.Platform.fullScreen();
 
+    // traslate stuffs
+    console.log("Base language: " + gettextCatalog.baseLanguage );
+    gettextCatalog.setCurrentLanguage('es');
+    gettextCatalog.debug = true;    
+    
     $rootScope.firebaseUrl = firebaseUrl;
-    $rootScope.displayName = null;
+    $rootScope.currentUser = null;
 
     Auth.$onAuth(function (authData) {
       if (authData) {
@@ -56,7 +61,7 @@ angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-
       console.log("Logging out from the app");
       $ionicLoading.show();
       Auth.$unauth();
-    }
+    };
 
     $rootScope.$on("$stateChangeError", function (event, toState, toParams, fromState, fromParams, error) {
       // We can catch the error thrown when the $requireAuth promise is rejected
@@ -66,7 +71,7 @@ angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-
         $location.path("/login");
       }
     });
-  });
+  });                       
 })
 
 .config(function ($stateProvider, $urlRouterProvider) {

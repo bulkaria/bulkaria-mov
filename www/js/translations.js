@@ -1,0 +1,5 @@
+angular.module('gettext').run(['gettextCatalog', function (gettextCatalog) {
+/* jshint -W100 */
+    gettextCatalog.setStrings('es', {"&nbsp;&nbsp;Sign in with <b>Facebook</b>":"&nbsp;&nbsp;Conectate con <b>Facebook</b>","&nbsp;&nbsp;Sign in with <b>Google+</b>":"&nbsp;&nbsp;Conectate con <b>Google+</b>","&nbsp;&nbsp;Sign in with <b>Twitter</b>":"&nbsp;&nbsp;Conectate con <b>Twitter</b>","<i class=\"icon ion-loading-c\"></i> Loading groups":"<i class=\"icon ion-loading-c\"></i> Cargando grupos","<i class=\"icon ion-log-out\"></i> Logout":"<i class=\"icon ion-log-out\"></i> Salir","Create New Account":"Crear una cuenta","Forgot password":"Olvidé mi contraseña","Groups":"Grupos","Login":"Ingresar","OR":"O","Sign In":"Ingresar","email":"correo electrónico","password":"contraseña"});
+/* jshint +W100 */
+}]);

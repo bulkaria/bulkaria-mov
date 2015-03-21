@@ -1,20 +1,23 @@
 <ion-modal-view>
   <ion-header-bar class="bar bar-header bar-dark">
-    <h1 class="title">Create New Account</h1>
-    <button class="button button-clear button-primary" ng-click="modal.hide()">Cancel</button>
+    <h1 class="title" translate>Create New Account</h1>
+    <button class="button button-clear button-primary" ng-click="modal.hide()" translate>Cancel</button>
   </ion-header-bar>
   <ion-content class="padding">
     <div class="list">
       <label class="item item-input">
-        <input ng-model="user.email" type="text" placeholder="Email Address">
+        <input ng-model="user.firstName" type="text" placeholder="{{ 'First Name' | translate }}">
       </label>
       <label class="item item-input">
-        <input ng-model="user.password" type="password" placeholder="Password">
+        <input ng-model="user.lastName" type="text" placeholder="{{ 'Last Name' | translate }}">
       </label>
       <label class="item item-input">
-        <input ng-model="user.displayname" type="text" placeholder="Display Name">
+        <input ng-model="user.email" type="text" placeholder="{{ 'Email Address' | translate }}">
       </label>
-      <button class="button button-block button-dark activated" ng-click="createUser(user)">Create</button>
+      <label class="item item-input">
+        <input ng-model="user.nickName" type="text" placeholder="{{ 'Nickname' | translate }}">
+      </label>
+      <button class="button button-block button-dark activated" ng-click="createUser(user)" translate>Create</button>
     </div>
   </ion-content>
 </ion-modal-view>

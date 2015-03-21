@@ -1,4 +1,4 @@
-<ion-view view-title="Groups">
+<ion-view view-title="{{ 'Groups' | translate }}">
   <ion-content>
     <ion-list ng-show="groups">
       <ion-item class="item-icon-left" ng-repeat="group in groups" type="item-text-wrap" ng-click="openChatRoom(room.id)">
@@ -7,12 +7,12 @@
       </ion-item>
     </ion-list>
     <ion-list ng-hide="groups.length">
-      <ion-item class="textCenter">
+      <ion-item class="textCenter" translate>
         <i class="icon ion-loading-c"></i> Loading groups
       </ion-item>
     </ion-list>
     <ion-list ng-hide="!groups.length">
-      <ion-item class="textCenter" ng-click="logout()">
+      <ion-item class="textCenter" ng-click="logout()" translate>
         <i class="icon ion-log-out"></i> Logout
       </ion-item>
     </ion-list>

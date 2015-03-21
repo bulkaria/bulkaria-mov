@@ -1,0 +1,57 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Project-Id-Version: \n"
+
+#: www/templates/login.html:24
+msgid "&nbsp;&nbsp;Sign in with <b>Facebook</b>"
+msgstr ""
+
+#: www/templates/login.html:27
+msgid "&nbsp;&nbsp;Sign in with <b>Google+</b>"
+msgstr ""
+
+#: www/templates/login.html:30
+msgid "&nbsp;&nbsp;Sign in with <b>Twitter</b>"
+msgstr ""
+
+#: www/templates/groups.html:10
+msgid "<i class=\"icon ion-loading-c\"></i> Loading groups"
+msgstr ""
+
+#: www/templates/groups.html:15
+msgid "<i class=\"icon ion-log-out\"></i> Logout"
+msgstr ""
+
+#: www/templates/login.html:35
+msgid "Create New Account"
+msgstr ""
+
+#: www/templates/login.html:38
+msgid "Forgot password"
+msgstr ""
+
+#: www/templates/groups.html:1
+msgid "Groups"
+msgstr ""
+
+#: www/templates/login.html:1
+msgid "Login"
+msgstr ""
+
+#: www/templates/login.html:23
+msgid "OR"
+msgstr ""
+
+#: www/templates/login.html:19
+msgid "Sign In"
+msgstr ""
+
+#: www/templates/login.html:12
+msgid "email"
+msgstr ""
+
+#: www/templates/login.html:16
+msgid "password"
+msgstr ""
