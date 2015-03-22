@@ -13,23 +13,25 @@
           <i class="icon ion-alert-circled error"></i>        
         </label>
         <label class="item item-input validated">
-          <input type="password" ng-model="user.pwdForLogin" name="password" required="required" placeholder="{{ 'password' | translate }}" translate>
+          <input type="password" ng-model="user.password" name="password" required="required" placeholder="{{ 'password' | translate }}" translate>
           <i class="icon ion-alert-circled error"></i>          
         </label>
         <button type="submit" class="button button-block button-dark activated" translate>
           Sign In
         </button>
       </form>
-      <p class="logoText" translate>OR</p>
-      <button ng-click="login('facebook')" class="button button-block button-positive ion-social-facebook activated" translate>
-        &nbsp;&nbsp;Sign in with <b>Facebook</b>
+      <p class="logoText" translate>Or singn in with</p>
+      <center>
+      <button ng-click="socialSignIn('facebook')" class="button button-medium button-positive icon-left ion-social-facebook activated">
+        &nbsp;&nbsp;<b>Facebook</b>
       </button>
-      <button ng-click="login('google')" class="button button-block button-assertive ion-social-googleplus activated" translate>
-        &nbsp;&nbsp;Sign in with <b>Google+</b>
+      <button ng-click="socialSignIn('google')" class="button button-medium button-assertive icon-left ion-social-googleplus activated">
+        &nbsp;&nbsp;<b>Google+</b>
       </button>
-      <button ng-click="login('twitter')" class="button button-block button-calm ion-social-twitter activated" translate>
-        &nbsp;&nbsp;Sign in with <b>Twitter</b>
+      <button ng-click="socialSignIn('twitter')" class="button button-medium button-calm icon-left ion-social-twitter activated">
+        &nbsp;&nbsp;<b>Twitter</b>
       </button>
+      </center>
     </div>
     <div class="list" style="text-align:center">
       <button ng-click="signUp()" class="button button-small button-outline icon-left ion-person-add button-black" translate>

@@ -1,38 +1,86 @@
 angular.module('bulkaria-mov.controllers', [])
 
-.controller('LoginCtrl', function ($scope, $ionicModal, $ionicPopup, $state, $firebaseAuth, $ionicLoading, $rootScope, uuid2) {
-  //console.log('Login Controller Initialized');
+.controller('LoginCtrl', function ($log, $scope, $ionicModal, $ionicPopup, $state, $firebaseAuth, $ionicLoading, $rootScope, uuid2, gettextCatalog, popup, getEmail) {
+  
+  $log.info('Login Controller Initialized');
 
   var ref = new Firebase($scope.firebaseUrl);
-  var auth = $firebaseAuth(ref);
-  $scope.user = {
-    email: 'test1@foo.com',
-    pwdForLogin: '1234'
+  
+  // Create a callback to handle the result of the authentication
+  var authHandler = function (error, authData) {
+    if (error) {
+      $log.info("Login Failed!", error);
+      popup.alert("Authentication failed", error.message);
+      $ionicLoading.hide();
+    } else {
+      $log.info("User " + authData.uid + " is logged in with " + authData.provider);
+
+  
+      getEmail[authData.provider](authData);
+      
+      /*
+      switch (authData.provider) {
+      case "facebook":
+        break;
+      case "google":
+        break;
+      case "twitter":
+        break;
+      };
+      */
+      
+      ref.child("users").child(authData.uid).once('value', function (snapshot) {
+        var val = snapshot.val();
+        // To Update AngularJS $scope either use $apply or $timeout
+        $scope.$apply(function () {
+          $rootScope.currentUser = val;
+        });
+      });
+      $state.go('groups');
+    }
   };
 
+  var getFacebookEmail = function(authData) {
+  };
+  
+  var getGoogleEmail = function(authData) {
+  };
+  
+  var getTwitterEmail = function(authData) {
+  };
+  
+  
+  
+  
+  /*
+  $scope.user = {
+    email: 'test1@foo.com',
+    password: '1234'
+  };
+  */
+
   $scope.signIn = function (user) {
-    if (user && user.email && user.pwdForLogin) {
+    if (user && user.email && user.password) {
       $ionicLoading.show();
-      auth.$authWithPassword({
+      ref.authWithPassword({
         email: user.email,
-        password: user.pwdForLogin
-      }).then(function (authData) {
-        console.log("Logged in as:" + authData.uid);
-        ref.child("users").child(authData.uid).once('value', function (snapshot) {
-          var val = snapshot.val();
-          // To Update AngularJS $scope either use $apply or $timeout
-          $scope.$apply(function () {
-            $rootScope.currentUser = val;
-          });
-        });
-        $ionicLoading.hide();
-        $state.go('groups');
-      }).catch(function (error) {
-        $scope.showAlert("Authentication failed", error.message);
-        $ionicLoading.hide();
-      });
+        password: user.password
+      }, authHandler);
+      $ionicLoading.hide();
     } else
-      $scope.showAlert("Authentication failed", "Please enter email and password both");
+      popup.alert("Authentication failed", "Please enter email and password both");
+  };
+
+  $scope.socialSignIn = function (provider) {
+    // prefer pop-ups, so we don't navigate away from the page
+    ref.authWithOAuthPopup(provider, function (error, authData) {
+      if (error && error.code === "TRANSPORT_UNAVAILABLE")
+      // fall-back to browser redirects, and pick up the session
+      // automatically when we come back to the origin page
+        ref.authWithOAuthRedirect(provider, authHandler);
+      else
+        authHandler(error, authData);
+    });
   };
 
   $scope.signUp = function () {
@@ -46,12 +94,37 @@ angular.module('bulkaria-mov.controllers', [])
   };
 
   $scope.createUser = function (user) {
-    console.log("Create User Function called");
+    $log.info("Create User Function called");
     if (user && user.email && (user.nickName || user.firstName)) {
       var setDisplayName = user.nickName || user.firstName;
 
       $ionicLoading.show();
 
+      ref.createUser({
+        email: user.email,
+        password: uuid2.newuuid()
+      }, function (error, userData) {
+        if (error) {
+          $log.error("Error creating user:", error);
+          popup.alert("Create User Error", error);
+        } else {
+          ref.child("users").child(userData.uid).set({
+            email: user.email,
+            displayName: setDisplayName,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            nickName: user.nickName
+          });
+
+          $log.info("Successfully created user account with uid:", userData.uid);
+          popup.alert("Create User", "User created successfully!");
+          $scope.modal.hide();
+        }
+
+        $ionicLoading.hide();
+      });
+
+      /*
       auth.$createUser({
         email: user.email,
         password: uuid2.newuuid()
@@ -64,16 +137,18 @@ angular.module('bulkaria-mov.controllers', [])
           nickName: user.nickName
         });
 
-        $scope.showAlert("Create User", "User created successfully!");        
+        popup.alert("Create User", "User created successfully!");
         $ionicLoading.hide();
         $scope.modal.hide();
 
       }).catch(function (error) {
-        $scope.showAlert("Create User Error", error);
+        popup.alert("Create User Error", error);
         $ionicLoading.hide();
       });
+      */
+
     } else
-      $scope.showAlert("Create User Error", "Please fill all details");
+      popup.alert("Create User Error", "Please fill all details");
   }
 
   $scope.forgotPassword = function () {
@@ -93,24 +168,15 @@ angular.module('bulkaria-mov.controllers', [])
         email: resetEmail
       }, function (error) {
         if (error === null) {
-          console.log("Password reset email sent successfully");
+          $log.info("Password reset email sent successfully");
         } else {
-          console.log("Error sending password reset email:", error);
+          $log.info("Error sending password reset email:", error);
         }
       });
       $ionicLoading.hide();
       $scope.modal.hide();
     } else
-      $scope.showAlert("Reset Password", "Please fill email");
-  };
-
-  $scope.showAlert = function (title, message) {
-    var alertPopup = $ionicPopup.alert({
-      title: "<b>" + title + "</b>",
-      template: "<translate>" + message + "</translate>",
-      cssClass: 'custom-alert',
-      okType: 'button-dark'
-    });
+      popup.alert("Reset Password", "Please fill email");
   };
 
 })

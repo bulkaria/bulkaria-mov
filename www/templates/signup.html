@@ -6,16 +6,16 @@
   <ion-content class="padding">
     <div class="list">
       <label class="item item-input">
-        <input ng-model="user.firstName" type="text" placeholder="{{ 'First Name' | translate }}">
+        <input ng-model="user.email" type="text" placeholder="{{ 'Email Address' | translate }}"/>
       </label>
       <label class="item item-input">
-        <input ng-model="user.lastName" type="text" placeholder="{{ 'Last Name' | translate }}">
+        <input ng-model="user.firstName" ng-change="user.nickName=user.firstName" type="text" placeholder="{{ 'First Name' | translate }}"/>
       </label>
       <label class="item item-input">
-        <input ng-model="user.email" type="text" placeholder="{{ 'Email Address' | translate }}">
+        <input ng-model="user.lastName" type="text" placeholder="{{ 'Last Name' | translate }}"/>
       </label>
       <label class="item item-input">
-        <input ng-model="user.nickName" type="text" placeholder="{{ 'Nickname' | translate }}">
+        <input ng-model="user.nickName" type="text" placeholder="{{ 'Nickname' | translate }}"/>
       </label>
       <button class="button button-block button-dark activated" ng-click="createUser(user)" translate>Create</button>
     </div>

@@ -13,18 +13,6 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: www/templates/login.html:24
-msgid "&nbsp;&nbsp;Sign in with <b>Facebook</b>"
-msgstr "&nbsp;&nbsp;Conectate con <b>Facebook</b>"
-
-#: www/templates/login.html:27
-msgid "&nbsp;&nbsp;Sign in with <b>Google+</b>"
-msgstr "&nbsp;&nbsp;Conectate con <b>Google+</b>"
-
-#: www/templates/login.html:30
-msgid "&nbsp;&nbsp;Sign in with <b>Twitter</b>"
-msgstr "&nbsp;&nbsp;Conectate con <b>Twitter</b>"
-
 #: www/templates/groups.html:10
 msgid "<i class=\"icon ion-loading-c\"></i> Loading groups"
 msgstr "<i class=\"icon ion-loading-c\"></i> Cargando grupos"
@@ -33,9 +21,25 @@ msgstr "<i class=\"icon ion-loading-c\"></i> Cargando grupos"
 msgid "<i class=\"icon ion-log-out\"></i> Logout"
 msgstr "<i class=\"icon ion-log-out\"></i> Salir"
 
-#: www/templates/login.html:35
+#: www/templates/reset-password.html:4 www/templates/signup.html:4
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: www/templates/signup.html:20
+msgid "Create"
+msgstr "Crear"
+
+#: www/templates/login.html:35 www/templates/signup.html:3
 msgid "Create New Account"
 msgstr "Crear una cuenta"
+
+#: www/templates/reset-password.html:10 www/templates/signup.html:9
+msgid "Email Address"
+msgstr "Correo electrónico"
+
+#: www/templates/signup.html:12
+msgid "First Name"
+msgstr "Nombre"
 
 #: www/templates/login.html:38
 msgid "Forgot password"
@@ -45,13 +49,29 @@ msgstr "Olvidé mi contraseña"
 msgid "Groups"
 msgstr "Grupos"
 
+#: www/templates/signup.html:15
+msgid "Last Name"
+msgstr "Apellido"
+
 #: www/templates/login.html:1
 msgid "Login"
 msgstr "Ingresar"
 
+#: www/templates/signup.html:18
+msgid "Nickname"
+msgstr "Apodo"
+
 #: www/templates/login.html:23
-msgid "OR"
-msgstr "O"
+msgid "Or singn in with"
+msgstr "O conéctate con"
+
+#: www/templates/reset-password.html:3
+msgid "Reset Password"
+msgstr "Nueva contraseña"
+
+#: www/templates/reset-password.html:13
+msgid "Send email"
+msgstr "Enviar correo"
 
 #: www/templates/login.html:19
 msgid "Sign In"
@@ -64,3 +84,15 @@ msgstr "correo electrónico"
 #: www/templates/login.html:16
 msgid "password"
 msgstr "contraseña"
+
+#~ msgid "&nbsp;&nbsp;Sign in with <b>Facebook</b>"
+#~ msgstr "&nbsp;&nbsp;Conectate con <b>Facebook</b>"
+
+#~ msgid "&nbsp;&nbsp;Sign in with <b>Google+</b>"
+#~ msgstr "&nbsp;&nbsp;Conectate con <b>Google+</b>"
+
+#~ msgid "&nbsp;&nbsp;Sign in with <b>Twitter</b>"
+#~ msgstr "&nbsp;&nbsp;Conectate con <b>Twitter</b>"
+
+#~ msgid "OR"
+#~ msgstr "O"

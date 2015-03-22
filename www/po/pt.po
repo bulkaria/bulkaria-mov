@@ -2,32 +2,37 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Project-Id-Version: \n"
+"Project-Id-Version: bulkaria-mov\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Federico Brinkworth <federico.brinkworth@gmail.com>\n"
+"Language-Team:  <federico.brinkworth@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"X-Generator: Poedit 1.5.4\n"
+"Language: pt\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
 #: www/templates/groups.html:10
 msgid "<i class=\"icon ion-loading-c\"></i> Loading groups"
-msgstr ""
+msgstr "<i class=\"icon ion-loading-c\"></i> Leyendo grupos"
 
 #: www/templates/groups.html:15
 msgid "<i class=\"icon ion-log-out\"></i> Logout"
-msgstr ""
+msgstr "<i class=\"icon ion-log-out\"></i> Saindo"
 
-#: www/templates/reset-password.html:4
-#: www/templates/signup.html:4
+#: www/templates/reset-password.html:4 www/templates/signup.html:4
 msgid "Cancel"
-msgstr ""
+msgstr "Fechar"
 
 #: www/templates/signup.html:20
 msgid "Create"
-msgstr ""
+msgstr "Crear"
 
-#: www/templates/login.html:35
-#: www/templates/signup.html:3
+#: www/templates/login.html:35 www/templates/signup.html:3
 msgid "Create New Account"
-msgstr ""
+msgstr "Crear nova conta"
 
-#: www/templates/reset-password.html:10
-#: www/templates/signup.html:9
+#: www/templates/reset-password.html:10 www/templates/signup.html:9
 msgid "Email Address"
 msgstr ""
 
