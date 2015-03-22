@@ -2,10 +2,18 @@ angular.module('bulkaria-mov.services', ['firebase'])
 
 .factory("getEmail", function ($firebaseAuth, $rootScope) {
   return {
-    facebook: function(authData) {alert("facebook");},
-    google: function(authData) {alert("google");},
-    twitter: function(authData) {alert("twitter");},
-    password: function(authData) {alert(authData.uid);}
+    facebook: function(authData) {
+      return null;
+    },
+    google: function(authData) {
+      return null;
+    },
+    twitter: function(authData) {
+      return null;
+    },
+    password: function(authData) {
+      return authData.password.email; 
+    }
   }
 })
 
