@@ -1,0 +1,117 @@
+{
+  "uid": "twitter:95224210",
+  "provider": "twitter",
+  "twitter": {
+    "id": "95224210",
+    "accessToken": "95224210-DQDwK39JYdww0gpYqFikTO9v7ciESRBArFAt6bzQr",
+    "accessTokenSecret": "zAkRXWeGET8HClhjmxS5k0ogqzkG23aSknPfVBXcVyGI5",
+    "displayName": "Federico Brinkworth",
+    "username": "fbrinkworth",
+    "cachedUserProfile": {
+      "id": 95224210,
+      "id_str": "95224210",
+      "name": "Federico Brinkworth",
+      "screen_name": "fbrinkworth",
+      "location": "Rosario, Argentina",
+      "profile_location": null,
+      "description": "He aquí otra más de mis virtualidades",
+      "url": "http://t.co/CvRIR46Exz",
+      "entities": {
+        "url": {
+          "urls": [
+            {
+              "url": "http://t.co/CvRIR46Exz",
+              "expanded_url": "http://www.facebook.com/federico.brinkworth",
+              "display_url": "facebook.com/federico.brink…",
+              "indices": [
+                0,
+                22
+              ]
+            }
+          ]
+        },
+        "description": {
+          "urls": []
+        }
+      },
+      "protected": false,
+      "followers_count": 16,
+      "friends_count": 11,
+      "listed_count": 0,
+      "created_at": "Mon Dec 07 15:47:53 +0000 2009",
+      "favourites_count": 0,
+      "utc_offset": -10800,
+      "time_zone": "Buenos Aires",
+      "geo_enabled": false,
+      "verified": false,
+      "statuses_count": 1,
+      "lang": "es",
+      "status": {
+        "created_at": "Mon Mar 31 15:49:47 +0000 2014",
+        "id": 450661240743145500,
+        "id_str": "450661240743145472",
+        "text": "@juancampanella quisiera enviarle un mensaje privado con algo que quizás le interese. ¿Me sigue solo por un ratito? Gracias!",
+        "source": "<a href=\"http://twitter.com\" rel=\"nofollow\">Twitter Web Client</a>",
+        "truncated": false,
+        "in_reply_to_status_id": null,
+        "in_reply_to_status_id_str": null,
+        "in_reply_to_user_id": 180990597,
+        "in_reply_to_user_id_str": "180990597",
+        "in_reply_to_screen_name": "juancampanella",
+        "geo": null,
+        "coordinates": null,
+        "place": null,
+        "contributors": null,
+        "retweet_count": 0,
+        "favorite_count": 0,
+        "entities": {
+          "hashtags": [],
+          "symbols": [],
+          "user_mentions": [
+            {
+              "screen_name": "juancampanella",
+              "name": "Juan José Campanella",
+              "id": 180990597,
+              "id_str": "180990597",
+              "indices": [
+                0,
+                15
+              ]
+            }
+          ],
+          "urls": []
+        },
+        "favorited": false,
+        "retweeted": false,
+        "lang": "es"
+      },
+      "contributors_enabled": false,
+      "is_translator": false,
+      "is_translation_enabled": false,
+      "profile_background_color": "ACDED6",
+      "profile_background_image_url": "http://abs.twimg.com/images/themes/theme18/bg.gif",
+      "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme18/bg.gif",
+      "profile_background_tile": false,
+      "profile_image_url": "http://pbs.twimg.com/profile_images/450650414883418113/QVza_Ie2_normal.jpeg",
+      "profile_image_url_https": "https://pbs.twimg.com/profile_images/450650414883418113/QVza_Ie2_normal.jpeg",
+      "profile_link_color": "038543",
+      "profile_sidebar_border_color": "EEEEEE",
+      "profile_sidebar_fill_color": "F6F6F6",
+      "profile_text_color": "333333",
+      "profile_use_background_image": true,
+      "default_profile": false,
+      "default_profile_image": false,
+      "following": false,
+      "follow_request_sent": false,
+      "notifications": false,
+      "suspended": false,
+      "needs_phone_verification": false
+    }
+  },
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2IjowLCJkIjp7InVpZCI6InR3aXR0ZXI6OTUyMjQyMTAiLCJwcm92aWRlciI6InR3aXR0ZXIifSwiaWF0IjoxNDI3MDg1MTQ5fQ.BDV6ymXo5DJGCCNpVWYiA94nVcyhobgLNPxSSot6ab0",
+  "auth": {
+    "uid": "twitter:95224210",
+    "provider": "twitter"
+  },
+  "expires": 1429677149
+}

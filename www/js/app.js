@@ -1,8 +1,7 @@
 // bulkaria-mov
-var firebaseUrl = "https://bulkaria-dev.firebaseio.com";
 
 function onDeviceReady() {
-    angular.bootstrap(document, ["bulkaria-mov"]);
+  angular.bootstrap(document, ["bulkaria-mov"]);
 }
 
 //console.log("binding device ready");
@@ -11,7 +10,15 @@ document.addEventListener("deviceready", onDeviceReady, false);
 
 // 'bulkaria-mov.services' is found in services.js
 // 'bulkaria-mov.controllers' is found in controllers.js
-angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-mov.controllers', 'bulkaria-mov.services', 'gettext', 'angularUUID2'])
+angular.module('bulkaria-mov', [
+  'ionic', 
+  'firebase', 
+  'angularMoment', 
+  'bulkaria-mov.controllers', 
+  'bulkaria-mov.services', 
+  'bulkaria-mov.providers', 
+  'gettext', 
+  'angularUUID2'])
 
 // Test here differents spinners for $ionicLoading service
 .constant('$ionicLoadingConfig', {
@@ -23,59 +30,14 @@ angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-
     //showDelay: 500
 })
 
-.run(function ($ionicPlatform, $rootScope, $location, Auth, $ionicLoading, $ionicHistory, gettextCatalog) {
-  $ionicPlatform.ready(function () {
-    // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-    // for form inputs)
-    if (window.cordova && window.cordova.plugins.Keyboard) {
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-    }
-    if (window.StatusBar) {
-      // org.apache.cordova.statusbar required
-      StatusBar.styleDefault();
-    }
-    // To Resolve Bug
-    ionic.Platform.fullScreen();
+.constant("firebaseUrl", "https://bulkaria-dev.firebaseio.com")
 
-    // traslate stuffs
-    console.log("Base language: " + gettextCatalog.baseLanguage );
-    gettextCatalog.setCurrentLanguage('es');
-    gettextCatalog.debug = true;    
-    
-    $rootScope.firebaseUrl = firebaseUrl;
-    $rootScope.currentUser = null;
-
-    Auth.$onAuth(function (authData) {
-      if (authData) {
-        console.log(">> Logged in as:", authData.uid);
-        $ionicHistory.clearCache();
-      } else {
-        console.log("Logged out");
-        $ionicLoading.hide();
-        $ionicHistory.clearCache();
-        $location.path('/login');
-      }
-    });
-
-    $rootScope.logout = function () {
-      console.log("Logging out from the app");
-      $ionicLoading.show();
-      Auth.$unauth();
-    };
-
-    $rootScope.$on("$stateChangeError", function (event, toState, toParams, fromState, fromParams, error) {
-      // We can catch the error thrown when the $requireAuth promise is rejected
-      // and redirect the user back to the home page
-      if (error === "AUTH_REQUIRED") {
-        $ionicHistory.clearCache();
-        $location.path("/login");
-      }
-    });
-  });                       
-})
-
-.config(function ($stateProvider, $urlRouterProvider) {
+.config(["authProvider", "firebaseUrl", "$stateProvider", "$urlRouterProvider", function (authProvider, firebaseUrl, $stateProvider, $urlRouterProvider) {
   console.log("setting config");
+  
+  // set Firebase for auth provider
+  authProvider.setFirebaseRef(firebaseUrl);
+  
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
   // Set up the various states which the app can be in.
@@ -83,17 +45,17 @@ angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-
   $stateProvider
 
   // State to represent Login View
-  .state('login', {
+  .state("login", {
     url: "/login",
     templateUrl: "templates/login.html",
-    controller: 'LoginCtrl',
+    controller: "LoginCtrl",
     resolve: {
       // controller will not be loaded until $waitForAuth resolves
       // Auth refers to our $firebaseAuth wrapper in the example above
-      "currentAuth": ["Auth",
-        function (Auth) {
+      "currentAuth": ["auth",
+        function (auth) {
           // $waitForAuth returns a promise so the resolve waits for it to complete
-          return Auth.$waitForAuth();
+          return auth.status().$waitForAuth();
         }]
     }
   })
@@ -106,11 +68,11 @@ angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-
     resolve: {
       // controller will not be loaded until $requireAuth resolves
       // Auth refers to our $firebaseAuth wrapper in the example above
-      "currentAuth": ["Auth",
-        function (Auth) {
+      "currentAuth": ["auth",
+        function (auth) {
           // $requireAuth returns a promise so the resolve waits for it to complete
           // If the promise is rejected, it will throw a $stateChangeError (see above)
-          return Auth.$requireAuth();
+          return auth.status().$requireAuth();
         }]
     }
   })
@@ -123,11 +85,11 @@ angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-
     resolve: {
       // controller will not be loaded until $requireAuth resolves
       // Auth refers to our $firebaseAuth wrapper in the example above
-      "currentAuth": ["Auth",
-                function (Auth) {
+      "currentAuth": ["auth",
+                function (auth) {
           // $requireAuth returns a promise so the resolve waits for it to complete
           // If the promise is rejected, it will throw a $stateChangeError (see above)
-          return Auth.$requireAuth();
+          return auth.status().$requireAuth();
             }]
     }
   })
@@ -157,7 +119,60 @@ angular.module('bulkaria-mov', ['ionic', 'firebase', 'angularMoment', 'bulkaria-
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/login');
 
-})
+}])
+
+.run(["$ionicPlatform", "$rootScope", "$log", "$location", "auth", "$ionicLoading", "$ionicHistory", "gettextCatalog", 
+  function ($ionicPlatform, $rootScope, $log, $location, auth, $ionicLoading, $ionicHistory, gettextCatalog) {
+    $ionicPlatform.ready(function () {
+      // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+      // for form inputs)
+      if (window.cordova && window.cordova.plugins.Keyboard) {
+        cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+      }
+      if (window.StatusBar) {
+        // org.apache.cordova.statusbar required
+        StatusBar.styleDefault();
+      }
+      // To Resolve Bug
+      ionic.Platform.fullScreen();
+
+     // traslate stuffs
+      $log.info("Base language: " + gettextCatalog.baseLanguage);
+      gettextCatalog.setCurrentLanguage('es');
+      gettextCatalog.debug = true;    
+
+      $rootScope.ref = auth.getFirebaseRef();
+      //$rootScope.ref = new Firebase("https://bulkaria-dev.firebaseio.com");
+      $rootScope.currentUser = null;  
+
+      auth.status().$onAuth(function (authData) {
+        if (authData) {
+          console.log(">> Logged in as:", authData.uid);
+          $ionicHistory.clearCache();
+        } else {
+          console.log("Logged out");
+          $ionicLoading.hide();
+          $ionicHistory.clearCache();
+          $location.path('/login');
+        }
+      });
+
+      $rootScope.logout = function () {
+        console.log("Logging out from the app");
+        $ionicLoading.show();
+        $rootScope.ref.unauth();
+      };
+
+      $rootScope.$on("$stateChangeError", function (event, toState, toParams, fromState, fromParams, error) {
+        // We can catch the error thrown when the $requireAuth promise is rejected
+        // and redirect the user back to the home page
+        if (error === "AUTH_REQUIRED") {
+          $ionicHistory.clearCache();
+          $location.path("/login");
+        }
+      });
+    });                       
+}])
 
 .directive('onValidSubmit', ['$parse', '$timeout', function($parse, $timeout) {
     return {

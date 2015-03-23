@@ -1,0 +1,40 @@
+{
+  "uid": "facebook:1099869728",
+  "provider": "facebook",
+  "facebook": {
+    "id": "1099869728",
+    "accessToken": "CAAKQkLGC3ZBcBAMhL76UcGUQEy0U5dZBwpd7aOatGR06fEpPsE4HlTr2gkext1aK9SEZAliBpmCZCMIyi3nB2MmKvtuWptDr0TyQVku3xsXp5Ko6vYZCX9TNiAYzkZAoTtlg2m90CmSMWR9G69CyaB2Vtb6S4ddKGZC1vQF9x2zhFbvkMZCuyLGTpWSt44Iv7qPIbRWqxXQfHP48aIGjNPAWHZBIKBhZBDDaQZD",
+    "displayName": "Federico Brinkworth",
+    "email": "federico.brinkworth@gmail.com",
+    "cachedUserProfile": {
+      "id": "1099869728",
+      "name": "Federico Brinkworth",
+      "last_name": "Brinkworth",
+      "first_name": "Federico",
+      "gender": "male",
+      "link": "https://www.facebook.com/federico.brinkworth",
+      "email": "federico.brinkworth@gmail.com",
+      "picture": {
+        "data": {
+          "is_silhouette": false,
+          "url": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xfp1/v/t1.0-1/p100x100/10363945_10205169956784077_6491889647620231935_n.jpg?oh=071c088d6a408bea5315203868158f0a&oe=55AF54BC&__gda__=1433466411_d9084d512cce0d37bc2157f6b2d8fd06"
+        }
+      },
+      "age_range": {
+        "min": 21
+      },
+      "locale": "es_LA",
+      "location": {
+        "id": "107661449256472",
+        "name": "Rosario, Santa Fe"
+      },
+      "timezone": -3
+    }
+  },
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2IjowLCJkIjp7InVpZCI6ImZhY2Vib29rOjEwOTk4Njk3MjgiLCJwcm92aWRlciI6ImZhY2Vib29rIn0sImlhdCI6MTQyNzA4NDM5OH0.dEp84fheMdZ9uLAHwxTVWQr388_spwqGoGdv4QodKCQ",
+  "auth": {
+    "uid": "facebook:1099869728",
+    "provider": "facebook"
+  },
+  "expires": 1429676398
+}
