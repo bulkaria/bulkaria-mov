@@ -141,9 +141,9 @@ angular.module('bulkaria-mov', [
       gettextCatalog.setCurrentLanguage('es');
       gettextCatalog.debug = true;    
 
-      $rootScope.ref = auth.getFirebaseRef();
+      //$rootScope.ref = auth.getFirebaseRef();
       //$rootScope.ref = new Firebase("https://bulkaria-dev.firebaseio.com");
-      $rootScope.currentUser = null;  
+      //$rootScope.currentUser = auth.getCurrentUser();  
 
       auth.status().$onAuth(function (authData) {
         if (authData) {
@@ -160,7 +160,7 @@ angular.module('bulkaria-mov', [
       $rootScope.logout = function () {
         console.log("Logging out from the app");
         $ionicLoading.show();
-        $rootScope.ref.unauth();
+        auth.getFirebaseRef().unauth();
       };
 
       $rootScope.$on("$stateChangeError", function (event, toState, toParams, fromState, fromParams, error) {
