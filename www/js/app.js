@@ -55,7 +55,8 @@ angular.module('bulkaria-mov', [
       "currentAuth": ["auth",
         function (auth) {
           // $waitForAuth returns a promise so the resolve waits for it to complete
-          return auth.status().$waitForAuth();
+          //return auth.status().$waitForAuth();
+          return auth.waitForAuth();
         }]
     }
   })
@@ -72,7 +73,8 @@ angular.module('bulkaria-mov', [
         function (auth) {
           // $requireAuth returns a promise so the resolve waits for it to complete
           // If the promise is rejected, it will throw a $stateChangeError (see above)
-          return auth.status().$requireAuth();
+          //return auth.status().$requireAuth();
+          return auth.requireAuth();
         }]
     }
   })
@@ -86,11 +88,12 @@ angular.module('bulkaria-mov', [
       // controller will not be loaded until $requireAuth resolves
       // Auth refers to our $firebaseAuth wrapper in the example above
       "currentAuth": ["auth",
-                function (auth) {
+        function (auth) {
           // $requireAuth returns a promise so the resolve waits for it to complete
           // If the promise is rejected, it will throw a $stateChangeError (see above)
-          return auth.status().$requireAuth();
-            }]
+          //return auth.status().$requireAuth();
+          return auth.requireAuth();
+        }]
     }
   })
 
@@ -145,12 +148,17 @@ angular.module('bulkaria-mov', [
       //$rootScope.ref = new Firebase("https://bulkaria-dev.firebaseio.com");
       //$rootScope.currentUser = auth.getCurrentUser();  
 
-      auth.status().$onAuth(function (authData) {
+      
+      // auth core init
+      auth.init();
+      
+      auth.onAuth(function (authData) {
         if (authData) {
-          console.log(">> Logged in as:", authData.uid);
+          $log.info("Logged in as: " + authData.uid);
+          $ionicLoading.hide();          
           $ionicHistory.clearCache();
+          $location.path('/groups');
         } else {
-          console.log("Logged out");
           $ionicLoading.hide();
           $ionicHistory.clearCache();
           $location.path('/login');
@@ -158,9 +166,9 @@ angular.module('bulkaria-mov', [
       });
 
       $rootScope.logout = function () {
-        console.log("Logging out from the app");
+        $log.info(auth.uid() + " logged out");
         $ionicLoading.show();
-        auth.getFirebaseRef().unauth();
+        auth.signOut();
       };
 
       $rootScope.$on("$stateChangeError", function (event, toState, toParams, fromState, fromParams, error) {

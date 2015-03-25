@@ -8,13 +8,13 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     firebaseRef = new Firebase(firebaseUrl);
   };
 
-  this.$get = ["$firebaseAuth", "$log", "uuid2", function ($firebaseAuth, $log, uuid2) {
+  this.$get = ["$rootScope", "$firebaseAuth", "$log", "uuid2", function ($rootScope, $firebaseAuth, $log, uuid2) {
     var services = {};
     var userModel = {
       uid: null,
       fuid: null,
       guid: null,
-      tuid: null, 
+      tuid: null,
       email: null,
       displayName: null,
       firstName: null,
@@ -30,71 +30,96 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       twitterAccessToken: null,
       twitterAccessTokenSecret: null,
       status: "memory"
-    };      
-    
-    currentUser = userModel;
-    
+    };
+
+    services.init = function () {  
+      currentUser = userModel;
+      var authData = $firebaseAuth(firebaseRef).$getAuth();
+      if (authData) {
+        services.setSocialData(authData);
+        if(!currentUser.uid) {
+          services.getUidByEmail(currentUser.email, function(uid) {
+            currentUser.uid = uid;
+          });
+        }
+      }
+    };
+
     services.getCurrentUser = function () {
       return currentUser;
     };
 
+    services.onAuth = function (callback) {
+      return $firebaseAuth(firebaseRef).$onAuth(callback);
+    };
+
+    services.waitForAuth = function () {
+      return $firebaseAuth(firebaseRef).$waitForAuth();
+    };
+
+    services.requireAuth = function () {
+      return $firebaseAuth(firebaseRef).$requireAuth();
+    };
+
+    services.uid = function () {
+      if(currentUser) 
+        return currentUser.uid;
+      else
+        return "unknow";
+    };
+  
     services.setSocialData = function (authData) {
       var socialData = {
         facebook: function (authData) {
-          currentUser = {
-            fuid: authData.uid,
-            email: authData.facebook.cachedUserProfile.email,
-            displayName: authData.facebook.displayName,
-            firstName: authData.facebook.cachedUserProfile.first_name,
-            lastName: authData.facebook.cachedUserProfile.last_name,
-            nickName: authData.facebook.displayName,
-            gender: authData.facebook.cachedUserProfile.gender,
-            picture: authData.facebook.cachedUserProfile.picture.data.url,
-            active: true,
-            provider: authData.provider,
-            isTemporaryPassword: false,
-            facebookAccessToken: authData.facebook.accessToken,
-            status: "memory"
-          };         
+          currentUser.fuid = authData.uid;
+          currentUser.email = authData.facebook.cachedUserProfile.email;
+          currentUser.displayName = authData.facebook.displayName;
+          currentUser.firstName = authData.facebook.cachedUserProfile.first_name;
+          currentUser.lastName = authData.facebook.cachedUserProfile.last_name;
+          currentUser.nickName = authData.facebook.displayName;
+          currentUser.gender = authData.facebook.cachedUserProfile.gender;
+          currentUser.picture = authData.facebook.cachedUserProfile.picture.data.url;
+          currentUser.active = true;
+          currentUser.provider = authData.provider;
+          currentUser.isTemporaryPassword = false;
+          currentUser.facebookAccessToken = authData.facebook.accessToken;
+          currentUser.status = "memory";
         },
         google: function (authData) {
-          currentUser = {
-            guid: authData.uid,
-            email: authData.google.cachedUserProfile.email,
-            displayName: authData.google.displayName,
-            firstName: authData.google.cachedUserProfile.given_name,
-            lastName: authData.google.cachedUserProfile.family_name,
-            nickName: authData.google.displayName,
-            gender: authData.google.cachedUserProfile.gender,
-            picture: authData.google.cachedUserProfile.picture,
-            active: true,
-            provider: authData.provider,
-            isTemporaryPassword: false,
-            googleAccessToken: authData.google.accessToken,
-            status: "memory"
-          };         
+          currentUser.guid = authData.uid;
+          currentUser.email = authData.google.cachedUserProfile.email;
+          currentUser.displayName = authData.google.displayName;
+          currentUser.firstName = authData.google.cachedUserProfile.given_name;
+          currentUser.lastName = authData.google.cachedUserProfile.family_name;
+          currentUser.nickName = authData.google.displayName;
+          currentUser.gender = authData.google.cachedUserProfile.gender;
+          currentUser.picture = authData.google.cachedUserProfile.picture;
+          currentUser.active = true;
+          currentUser.provider = authData.provider;
+          currentUser.isTemporaryPassword = false;
+          currentUser.googleAccessToken = authData.google.accessToken;
+          currentUser.status = "memory";
         },
         twitter: function (authData) {
           // twitter don't provide user email until now
-          currentUser = {
-            tuid: authData.uid,
-            displayName: authData.twitter.displayName,
-            nickName: authData.twitter.username,
-            picture: authData.twitter.cachedUserProfile.profile_image_url,
-            active: true,
-            provider: authData.provider,
-            isTemporaryPassword: false,
-            twitterAccessToken: authData.twitter.accessToken,
-            twitterAccessTokenSecret: authData.twitter.accessTokenSecret,
-            status: "memory"
-          };         
+          currentUser.tuid = authData.uid;
+          currentUser.email = authData.twitter.username + "@twitter.com";
+          currentUser.displayName = authData.twitter.displayName;
+          currentUser.nickName = authData.twitter.username;
+          currentUser.picture = authData.twitter.cachedUserProfile.profile_image_url;
+          currentUser.active = true;
+          currentUser.provider = authData.provider;
+          currentUser.isTemporaryPassword = false;
+          currentUser.twitterAccessToken = authData.twitter.accessToken;
+          currentUser.twitterAccessTokenSecret = authData.twitter.accessTokenSecret;
+          currentUser.status = "memory";
         }
       };
-      
+
       try {
         socialData[authData.provider](authData);
         return true;
-      } catch(e) {
+      } catch (e) {
         $log.error("setSocialData error: " + e);
         return false;
       }
@@ -117,10 +142,6 @@ angular.module("bulkaria-mov.providers", ["firebase"])
 
     services.getFirebaseRef = function () {
       return firebaseRef;
-    };
-
-    services.status = function () {
-      return $firebaseAuth(firebaseRef);
     };
 
     services.signIn = function (callback) {
@@ -150,10 +171,12 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       // prefer pop-ups, so we don't navigate away from the page
       firebaseRef.authWithOAuthPopup(provider, function (error, authData) {
         if (error && error.code === "TRANSPORT_UNAVAILABLE") {
-        // fall-back to browser redirects, and pick up the session
-        // automatically when we come back to the origin page
+          // fall-back to browser redirects, and pick up the session
+          // automatically when we come back to the origin page
           firebaseRef.authWithOAuthRedirect(provider, socialSingInHandler(error, authData, callback), authScope);
         } else if (error) {
+          $log.error("Error socialSignIn: " + error);
+          if (typeof callback === "function") callback(error);
         } else {
           if (services.setSocialData(authData)) {
             // create or update app user
@@ -164,13 +187,22 @@ angular.module("bulkaria-mov.providers", ["firebase"])
         }
       }, authScope);
     };
-    
+
     services.signOut = function (callback) {
       if (firebaseRef.getAuth()) firebaseRef.unauth();
       currentUser = userModel;
       if (typeof callback === "function") callback();
     };
 
+    services.getUidByEmail = function(email, callback) {
+      firebaseRef.child("users").startAt(email).endAt(email).once('value', function (snap) {
+        snap.forEach(function (childSnap) {
+          callback(childSnap.val().uid);
+          return true;
+        });
+      });      
+    }    
+    
     // create both, Firebase and app user or update if exists
     services.createUser = function (callback) {
       $log.info("Create User Function called");
@@ -182,19 +214,25 @@ angular.module("bulkaria-mov.providers", ["firebase"])
           password: uuid2.newuuid() // random password
         }, function (error, userData) {
           if (error) {
-            if(currentUser.provider !== "password" && error.code === "EMAIL_TAKEN") {
+            if (currentUser.provider !== "password" && error.code === "EMAIL_TAKEN") {
               // the user exists but is trying to access via other provider
               // get uid from existing user
-              firebaseRef.child("users").startAt(currentUser.email).endAt(currentUser.email).once('value', function(snap) {
-                snap.forEach(function(childSnap) {
+              services.getUidByEmail(currentUser.email, function(uid) {
+                currentUser.uid = uid;
+                services.updateUser(callback);
+              });
+              /*
+              firebaseRef.child("users").startAt(currentUser.email).endAt(currentUser.email).once('value', function (snap) {
+                snap.forEach(function (childSnap) {
                   currentUser.uid = childSnap.val().uid;
                   // then update if needed              
                   services.updateUser(callback);
                   return true;
                 });
-              });              
+              });
+              */
             } else {
-              console.log("Error creating user:", error);          
+              console.log("Error creating user:", error);
               if (typeof callback === "function") callback(error);
             }
           } else {
@@ -204,9 +242,9 @@ angular.module("bulkaria-mov.providers", ["firebase"])
             // update status
             currentUser.status = "stored";
             // set provider
-            if(!currentUser.provider) currentUser.provider = "password";
+            if (!currentUser.provider) currentUser.provider = "password";
             // create app user
-            firebaseRef.child("users").child(currentUser.uid).setWithPriority(currentUser, currentUser.email,function (error) {
+            firebaseRef.child("users").child(currentUser.uid).setWithPriority(currentUser, currentUser.email, function (error) {
               if (error) {
                 $log.error("Create app user error: " + error);
                 currentUser.status = "error";
@@ -232,11 +270,14 @@ angular.module("bulkaria-mov.providers", ["firebase"])
         });
       } else {
         if (typeof callback === "function") {
-          callback({name: "noEmailError", message: "No email address informed"});
+          callback({
+            name: "noEmailError",
+            message: "No email address informed"
+          });
         }
       }
     };
-    
+
     // Save or update current user
     services.updateUser = function (callback) {
       if (currentUser.uid) {
@@ -245,14 +286,17 @@ angular.module("bulkaria-mov.providers", ["firebase"])
             $log.error("Update app user error: " + error);
             if (typeof callback === "function") callback(error);
           } else {
-            $log.error("The app user had been updated");
+            $log.info("The app user had been updated");
             if (typeof callback === "function") callback(null);
           }
         });
       } else {
         $log.error("The current user has not user ID");
         if (typeof callback === "function") {
-          callback({name: "noIdError", message: "The current user has not user ID"});
+          callback({
+            name: "noIdError",
+            message: "The current user has not user ID"
+          });
         }
       }
     };

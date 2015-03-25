@@ -12,6 +12,7 @@ angular.module('bulkaria-mov.controllers', [])
 
         auth.signIn(function(error) {
           $ionicLoading.hide();
+          
           if(error) {
             popup.alert("Authentication failed", error);
           } else {
@@ -31,9 +32,7 @@ angular.module('bulkaria-mov.controllers', [])
 
     $scope.socialSignIn = function (provider) {
       auth.socialSignIn(provider, function(error){
-        if (error && error.name === "noEmailError") {
-          $scope.askUserEmail();
-        } else if (error) {
+        if (error) {
           popup.alert("Authentication failed", error);
         } else {
           $log.info("User " + $scope.user.uid + " is logged in with " + $scope.user.provider);
@@ -42,36 +41,6 @@ angular.module('bulkaria-mov.controllers', [])
       });
     };    
     
-    $scope.askUserEmail = function(callback) {
-      $scope.userEmail = null;
-      $ionicModal.fromTemplateUrl('templates/get-email.html', {
-        scope: $scope,
-        animation: 'slide-in-up'
-      }).then(function (modal) {
-        $scope.modal = modal;
-        modal.show();
-      });
-      $scope.$on('modal.hidden', function() {
-        if($scope.userEmail) {
-          auth.getCurrentUser().email = $scope.userEmail;
-          auth.createUser(function(error) {
-            if(error) {
-              popup.alert("Authentication failed", error.message);
-              auth.signOut();
-            } else {
-              $log.info("User " + $scope.user.uid + " is logged in with " + $scope.user.provider);
-              $state.go('groups');              
-            }          
-          });
-        } else {
-          $log.error("Logoff user because not had provided email");
-          popup.alert("Authentication failed", "Logoff user because not had provided email");
-          auth.signOut();
-        }
-      });      
-    };
-    
-    // signUp and createUser are hardnets cupled!
     // TODO validar el form de alta de cuenta
     $scope.signUp = function () {
       $ionicModal.fromTemplateUrl('templates/signup.html', {
@@ -92,49 +61,15 @@ angular.module('bulkaria-mov.controllers', [])
           } else {
             popup.alert("Create User", "User created successfully! A temporary password was sent for email, this expire in 24h");
           }
+          $ionicLoading.hide();        
         });
-        
-        $ionicLoading.hide();        
       });
     };
-
-    /***
-    // signUp and createUser are hardnets cupled!
-    $scope.createUser = function (successFunction) {
-      $ionicLoading.show();      
-      
-      if ($scope.user && $scope.user.email && ($scope.user.nickName || $scope.user.firstName)) {
-        var setDisplayName = $scope.user.nickName || ($scope.user.firstName + " " + $scope.user.lastName);
-        
-        auth.createUser(function (error) {
-          if (error) {
-            popup.alert("Create User Error", error);
-          } else {
-            popup.alert("Create User", "User created successfully! A temporary password was sent for email, this expire in 24h");
-            successFunction();
-          }
-        });
-      } else {
-        popup.alert("Create User Error", "Please fill all details");
-      }
-      
-      $ionicLoading.hide();
-    };
-
-    $scope.forgotPassword = function () {
-      $ionicModal.fromTemplateUrl('templates/reset-password.html', {
-        scope: $scope,
-        animation: 'slide-in-up'
-      }).then(function (modal) {
-        $scope.modal = modal;
-        modal.show();
-      });
-    };
-    ***/
 
     $scope.resetPassword = function (resetToEmail, successFunction) {
       if (resetToEmail) {
         $ionicLoading.show();
+        
         auth.getFirebaseRef().resetPassword({
           email: resetToEmail
         }, function (error) {
@@ -164,8 +99,8 @@ angular.module('bulkaria-mov.controllers', [])
     };
 }])
 
-.controller("GroupsCtrl", ["$scope", "Groups", "$state", function ($scope, Groups, $state) {
-  console.log("Groups Controller initialized");
+.controller("GroupsCtrl", ["$rootScope", "$scope", "Groups", "$state", "$log", function ($rootScope, $scope, Groups, $state, $log) {
+  $log.info("Groups Controller initialized");
 
   $scope.groups = Groups.all();
 
@@ -173,5 +108,6 @@ angular.module('bulkaria-mov.controllers', [])
     $state.go('tabs', {
       groupId: groupId
     });
-  }
+  };
+
 }]);

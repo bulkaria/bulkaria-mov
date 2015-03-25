@@ -1,4 +1,7 @@
-<ion-modal-view>
+
+ <!-- REMOVE, obsolet -->
+
+ <ion-modal-view>
   <ion-header-bar class="bar bar-header bar-dark">
     <h1 class="title" translate>Set Email Address</h1>
     <button class="button button-clear button-primary" ng-click="modal.hide()" translate>Cancel</button>
@@ -7,7 +10,7 @@
     <form novalidate="novalidate" on-valid-submit="modal.hide()">
       <div class="list">
         <label class="item item-input validated">
-          <input ng-model="userEmail" type="email" placeholder="{{ 'Email Address' | translate }}" required="required">
+          <input ng-model="user.email" type="email" placeholder="{{ 'Email Address' | translate }}" required="required">
           <i class="icon ion-alert-circled error"></i>
         </label>
         <button type="submit" class="button button-block button-dark activated" translate>Set</button>
