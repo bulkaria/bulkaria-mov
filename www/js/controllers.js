@@ -3,65 +3,76 @@ angular.module('bulkaria-mov.controllers', [])
 .controller('LoginCtrl', ["$log", "$scope", "$ionicModal", "$state", "$ionicLoading", "$rootScope", "gettextCatalog", "popup", "auth",
   function ($log, $scope, $ionicModal, $state, $ionicLoading, $rootScope, gettextCatalog, popup, auth) {
     $log.info('Login Controller Initialized');
+    // link current user to variable scope for use in controller an views
     $scope.user = auth.getCurrentUser();
 
-    // Handle auth and route to a home page
-    $scope.authHandler = function (error) {
-      if($ionicLoading.isOpen) $ionicLoading.hide();
-      
-      if (error) {
-        $log.info("Login Failed!", error);
-        popup.alert("Authentication failed", error);
-      } else {
-        $log.info("User " + $scope.user.uid + " is logged in with " + $scope.user.provider);
-
-        //$scope.user = auth.getCurrentUser():
-          
-        // we need an email, if not the user could not login
-        if ($scope.user.email) {
-          $ionicModal.fromTemplateUrl('templates/get-email.html', {
-            scope: $scope,
-            animation: 'slide-in-up'
-          }).then(function (modal) {
-            $scope.modal = modal;
-            modal.show();
-          });
-        } else {
-          if ($scope.user.provider === "password" && $scope.user.isTemporaryPassword) {
-            // TODO
-            // send to change password
-            $state.go('groups');
-          } else {
-            $state.go('groups');
-          }          
-        }
-      }
-    };
-  
-    $scope.setUserEmail = function (email, callback) {
-      if(email) {
-        $scope.user.email = email;
-        if($scope.user.uid) auth.saveUser();
-      } else {
-        auth.signOut();
-      }
-      if (typeof callback === "function") callback();
-    };
-    
-    $scope.signIn = function (user) {
-      if (user && user.email && user.password) {
+    $scope.signIn = function () {
+      if ($scope.user && $scope.user.email && $scope.user.password) {
         $ionicLoading.show();
 
-        auth.signIn(user, $scope.authHandler);
-        
+        auth.signIn(function(error) {
+          $ionicLoading.hide();
+          if(error) {
+            popup.alert("Authentication failed", error);
+          } else {
+            $log.info("User " + $scope.user.uid + " is logged in with " + $scope.user.provider);
+            if ($scope.user.provider === "password" && $scope.user.isTemporaryPassword) {
+              // TODO
+              // send to change password
+              $state.go('groups');
+            } else {
+              $state.go('groups');
+            }                
+          }        
+        });
       } else
         popup.alert("Authentication failed", "Please enter email and password both");
     };
 
     $scope.socialSignIn = function (provider) {
-      auth.socialSignIn(provider, $scope.authHandler);
+      auth.socialSignIn(provider, function(error){
+        if (error && error.name === "noEmailError") {
+          $scope.askUserEmail();
+        } else if (error) {
+          popup.alert("Authentication failed", error);
+        } else {
+          $log.info("User " + $scope.user.uid + " is logged in with " + $scope.user.provider);
+          $state.go('groups');
+        }
+      });
     };    
     
+    $scope.askUserEmail = function(callback) {
+      $scope.userEmail = null;
+      $ionicModal.fromTemplateUrl('templates/get-email.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+      }).then(function (modal) {
+        $scope.modal = modal;
+        modal.show();
+      });
+      $scope.$on('modal.hidden', function() {
+        if($scope.userEmail) {
+          auth.getCurrentUser().email = $scope.userEmail;
+          auth.createUser(function(error) {
+            if(error) {
+              popup.alert("Authentication failed", error.message);
+              auth.signOut();
+            } else {
+              $log.info("User " + $scope.user.uid + " is logged in with " + $scope.user.provider);
+              $state.go('groups');              
+            }          
+          });
+        } else {
+          $log.error("Logoff user because not had provided email");
+          popup.alert("Authentication failed", "Logoff user because not had provided email");
+          auth.signOut();
+        }
+      });      
+    };
+    
+    // signUp and createUser are hardnets cupled!
+    // TODO validar el form de alta de cuenta
     $scope.signUp = function () {
       $ionicModal.fromTemplateUrl('templates/signup.html', {
         scope: $scope,
@@ -70,12 +81,9 @@ angular.module('bulkaria-mov.controllers', [])
         $scope.modal = modal;
         modal.show();
       });
-    };
+      $scope.$on('modal.hidden', function() {
+        $ionicLoading.show();      
 
-    $scope.createUser = function (callback) {
-      $ionicLoading.show();      
-      
-      if ($scope.user && $scope.user.email && ($scope.user.nickName || $scope.user.firstName)) {
         var setDisplayName = $scope.user.nickName || ($scope.user.firstName + " " + $scope.user.lastName);
 
         auth.createUser(function (error) {
@@ -83,7 +91,27 @@ angular.module('bulkaria-mov.controllers', [])
             popup.alert("Create User Error", error);
           } else {
             popup.alert("Create User", "User created successfully! A temporary password was sent for email, this expire in 24h");
-            if (typeof callback === "function") callback();
+          }
+        });
+        
+        $ionicLoading.hide();        
+      });
+    };
+
+    /***
+    // signUp and createUser are hardnets cupled!
+    $scope.createUser = function (successFunction) {
+      $ionicLoading.show();      
+      
+      if ($scope.user && $scope.user.email && ($scope.user.nickName || $scope.user.firstName)) {
+        var setDisplayName = $scope.user.nickName || ($scope.user.firstName + " " + $scope.user.lastName);
+        
+        auth.createUser(function (error) {
+          if (error) {
+            popup.alert("Create User Error", error);
+          } else {
+            popup.alert("Create User", "User created successfully! A temporary password was sent for email, this expire in 24h");
+            successFunction();
           }
         });
       } else {
@@ -102,8 +130,9 @@ angular.module('bulkaria-mov.controllers', [])
         modal.show();
       });
     };
+    ***/
 
-    $scope.resetPassword = function (resetToEmail) {
+    $scope.resetPassword = function (resetToEmail, successFunction) {
       if (resetToEmail) {
         $ionicLoading.show();
         auth.getFirebaseRef().resetPassword({
@@ -118,7 +147,7 @@ angular.module('bulkaria-mov.controllers', [])
           }
         });
         $ionicLoading.hide();
-        $scope.modal.hide();
+        successFunction();
       } else
         popup.alert("Reset Password", "Please fill email");
     };

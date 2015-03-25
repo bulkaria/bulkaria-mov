@@ -1,10 +1,10 @@
 <ion-modal-view>
   <ion-header-bar class="bar bar-header bar-dark">
     <h1 class="title" translate>Set Email Address</h1>
-    <button class="button button-clear button-primary" ng-click="setUserEmail(null, modal.hide());" translate>Cancel</button>
+    <button class="button button-clear button-primary" ng-click="modal.hide()" translate>Cancel</button>
   </ion-header-bar>
   <ion-content class="padding">
-    <form novalidate="novalidate" on-valid-submit="setUserEmail(userEmail, modal.hide())">
+    <form novalidate="novalidate" on-valid-submit="modal.hide()">
       <div class="list">
         <label class="item item-input validated">
           <input ng-model="userEmail" type="email" placeholder="{{ 'Email Address' | translate }}" required="required">

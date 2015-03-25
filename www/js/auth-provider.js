@@ -4,20 +4,6 @@ angular.module("bulkaria-mov.providers", ["firebase"])
   var firebaseRef = null;
   var currentUser = null;
 
-  // custom exceptions
-  this.noEmailError = function (message) {
-    this.name = "noEmailError";
-    this.message = (message || "");
-  };
-  this.noEmailError.prototype = Error.prototype;
-
-  this.noIdError = function (message) {
-    this.name = "noIdError";
-    this.message = (message || "");
-  };
-  this.noIdError.prototype = Error.prototype;
-  // END custom exceptions
-  
   this.setFirebaseRef = function (firebaseUrl) {
     firebaseRef = new Firebase(firebaseUrl);
   };
@@ -26,6 +12,9 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     var services = {};
     var userModel = {
       uid: null,
+      fuid: null,
+      guid: null,
+      tuid: null, 
       email: null,
       displayName: null,
       firstName: null,
@@ -49,41 +38,66 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       return currentUser;
     };
 
-    services.getSocialData = function (authData) {
-      var email = {
+    services.setSocialData = function (authData) {
+      var socialData = {
         facebook: function (authData) {
           currentUser = {
-            uid: authData.uid,
+            fuid: authData.uid,
             email: authData.facebook.cachedUserProfile.email,
             displayName: authData.facebook.displayName,
             firstName: authData.facebook.cachedUserProfile.first_name,
             lastName: authData.facebook.cachedUserProfile.last_name,
             nickName: authData.facebook.displayName,
             gender: authData.facebook.cachedUserProfile.gender,
-            picture: authData.facebook.cachedUserProfile.picture.url,
+            picture: authData.facebook.cachedUserProfile.picture.data.url,
             active: true,
             provider: authData.provider,
             isTemporaryPassword: false,
             facebookAccessToken: authData.facebook.accessToken,
-            googleAccessToken: null,
-            twitterAccessToken: null,
-            twitterAccessTokenSecret: null,
             status: "memory"
           };         
-
         },
         google: function (authData) {
-          return authData.google.cachedUserProfile.email;
+          currentUser = {
+            guid: authData.uid,
+            email: authData.google.cachedUserProfile.email,
+            displayName: authData.google.displayName,
+            firstName: authData.google.cachedUserProfile.given_name,
+            lastName: authData.google.cachedUserProfile.family_name,
+            nickName: authData.google.displayName,
+            gender: authData.google.cachedUserProfile.gender,
+            picture: authData.google.cachedUserProfile.picture,
+            active: true,
+            provider: authData.provider,
+            isTemporaryPassword: false,
+            googleAccessToken: authData.google.accessToken,
+            status: "memory"
+          };         
         },
         twitter: function (authData) {
           // twitter don't provide user email until now
-          return null;
-        },
-        password: function (authData) {
-          return authData.password.email;
+          currentUser = {
+            tuid: authData.uid,
+            displayName: authData.twitter.displayName,
+            nickName: authData.twitter.username,
+            picture: authData.twitter.cachedUserProfile.profile_image_url,
+            active: true,
+            provider: authData.provider,
+            isTemporaryPassword: false,
+            twitterAccessToken: authData.twitter.accessToken,
+            twitterAccessTokenSecret: authData.twitter.accessTokenSecret,
+            status: "memory"
+          };         
         }
       };
-      return email[authData.provider](authData);
+      
+      try {
+        socialData[authData.provider](authData);
+        return true;
+      } catch(e) {
+        $log.error("setSocialData error: " + e);
+        return false;
+      }
     };
 
     services.getSocialScope = function (provider) {
@@ -109,10 +123,10 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       return $firebaseAuth(firebaseRef);
     };
 
-    services.signIn = function (user, callback) {
+    services.signIn = function (callback) {
       firebaseRef.authWithPassword({
-        email: user.email,
-        password: user.password
+        email: currentUser.email,
+        password: currentUser.password
       }, function (error, authData) {
         if (error) {
           $log.info("Login Failed!", error);
@@ -139,85 +153,107 @@ angular.module("bulkaria-mov.providers", ["firebase"])
         // fall-back to browser redirects, and pick up the session
         // automatically when we come back to the origin page
           firebaseRef.authWithOAuthRedirect(provider, socialSingInHandler(error, authData, callback), authScope);
+        } else if (error) {
         } else {
-          socialSingInHandler(error, authData, callback);
+          if (services.setSocialData(authData)) {
+            // create or update app user
+            services.createUser(callback);
+          } else {
+            $log.error("Cant update app user with social data");
+          }
         }
       }, authScope);
     };
     
-    var socialSingInHandler = function(error, authData, callback) {
-      if (!error) {
-        // set current user 
-        // TODO
-        currentUser.uid = authData.uid;
-        currentUser.email = services.getSocialEmail(authData);
-        services.saveCurrentUser(callback);
-      }
-      if (typeof callback === "function") callback(error);
-    };    
-
     services.signOut = function (callback) {
       if (firebaseRef.getAuth()) firebaseRef.unauth();
       currentUser = userModel;
       if (typeof callback === "function") callback();
     };
 
-    // create both, Firebase and app user
+    // create both, Firebase and app user or update if exists
     services.createUser = function (callback) {
       $log.info("Create User Function called");
 
+      // email is the key
       if (currentUser.email) {
         firebaseRef.createUser({
           email: currentUser.email,
           password: uuid2.newuuid() // random password
         }, function (error, userData) {
           if (error) {
-            $log.error("Error creating user:", error);
-            if (typeof callback === "function") callback(error);
+            if(currentUser.provider !== "password" && error.code === "EMAIL_TAKEN") {
+              // the user exists but is trying to access via other provider
+              // get uid from existing user
+              firebaseRef.child("users").startAt(currentUser.email).endAt(currentUser.email).once('value', function(snap) {
+                snap.forEach(function(childSnap) {
+                  currentUser.uid = childSnap.val().uid;
+                  // then update if needed              
+                  services.updateUser(callback);
+                  return true;
+                });
+              });              
+            } else {
+              console.log("Error creating user:", error);          
+              if (typeof callback === "function") callback(error);
+            }
           } else {
+            // is a new user, then we need create own internal user
+            // update new uid
             currentUser.uid = userData.uid;
-            services.saveCurrentUser(callback);
+            // update status
+            currentUser.status = "stored";
+            // set provider
+            if(!currentUser.provider) currentUser.provider = "password";
+            // create app user
+            firebaseRef.child("users").child(currentUser.uid).setWithPriority(currentUser, currentUser.email,function (error) {
+              if (error) {
+                $log.error("Create app user error: " + error);
+                currentUser.status = "error";
+                if (typeof callback === "function") callback(null);
+              } else {
+                // if the procider is firebase, we need sen a nre password
+                if (currentUser.provider === "password") {
+                  // reset password and send email
+                  firebaseRef.resetPassword({
+                    email: currentUser.email
+                  }, function (error) {
+                    if (error) {
+                      $log.error("Error in resert user password: " + error);
+                    } else {
+                      $log.info("Successfully created user account with uid: " + currentUser.uid);
+                    }
+                    if (typeof callback === "function") callback(null);
+                  });
+                }
+              }
+            });
           }
         });
       } else {
-        if (typeof callback === "function") callback(new noEmailError("You need porvide an valid email address"));
+        if (typeof callback === "function") {
+          callback({name: "noEmailError", message: "No email address informed"});
+        }
       }
     };
-
+    
     // Save or update current user
-    services.saveCurrentUser = function (callback) {
+    services.updateUser = function (callback) {
       if (currentUser.uid) {
-        firebaseRef.child("users").child(currentUser.uid).set(currentUser, function (error) {
+        firebaseRef.child("users").child(currentUser.uid).update(currentUser, function (error) {
           if (error) {
-            $log.error("Create app user error: " + error);
+            $log.error("Update app user error: " + error);
             if (typeof callback === "function") callback(error);
           } else {
-            currentUser.status = "saved";
-            if (currentUser.provider === "password") {
-              // reset password and send email
-              firebaseRef.resetPassword({
-                email: currentUser.email
-              }, function (error) {
-                if (error) {
-                  firebaseRef.child("users").child(currentUser.uid).remove(function (error) {
-                    if (error) {
-                      $log.error('Remove user: Oops! something went wrong. Try again later');
-                    } else {
-                      $log.info('Remove user: Successfully deleted');
-                    }
-                  });
-                  if (typeof callback === "function") callback(error);
-                } else {
-                  $log.info("Successfully created user account with uid:", currentUser.uid);
-                  if (typeof callback === "function") callback(null);
-                }
-              });
-            }
+            $log.error("The app user had been updated");
+            if (typeof callback === "function") callback(null);
           }
         });
       } else {
         $log.error("The current user has not user ID");
-        if (typeof callback === "function") callback(new noIdError("The current user has not user ID"));
+        if (typeof callback === "function") {
+          callback({name: "noIdError", message: "The current user has not user ID"});
+        }
       }
     };
 
