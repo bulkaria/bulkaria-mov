@@ -113,6 +113,13 @@ angular.module("bulkaria-mov.providers", ["firebase"])
           currentUser.twitterAccessToken = authData.twitter.accessToken;
           currentUser.twitterAccessTokenSecret = authData.twitter.accessTokenSecret;
           currentUser.status = "memory";
+        },
+        password: function (authData) {
+          // twitter don't provide user email until now
+          currentUser.tuid = authData.uid;
+          currentUser.email = authData.password.email;
+          currentUser.isTemporaryPassword = authData.password.isTemporaryPassword;
+          currentUser.status = "memory";
         }
       };
 
@@ -135,7 +142,6 @@ angular.module("bulkaria-mov.providers", ["firebase"])
         },
         twitter: {
           scope: "email"
-
         }
       }[provider];
     };
@@ -151,17 +157,16 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       }, function (error, authData) {
         if (error) {
           $log.info("Login Failed!", error);
-          if (typeof callback === "function") callback(error);
         } else {
           $log.info("User " + authData.uid + " is logged in with " + authData.provider);
-
           //$log.info("authData: " + angular.toJson(authData, true));
 
-          // set current user
+          // set current user in background
           firebaseRef.child("users").child(authData.uid).once('value', function (snapshot) {
-            currentUser = val();
+            currentUser = val();            
           });
         }
+        if (typeof callback === "function") callback(error);        
       });
     };
 

@@ -1,7 +1,7 @@
 <ion-modal-view>
   <ion-header-bar class="bar bar-header bar-dark">
     <h1 class="title" translate>Create New Account</h1>
-    <button class="button button-clear button-primary" ng-click="modal.hide()" translate>Cancel</button>
+    <button class="button button-clear button-primary" ng-click="hideModal('cancel')" translate>Cancel</button>
   </ion-header-bar>
   <ion-content class="padding">
     <div class="list">
@@ -21,7 +21,7 @@
       <ion-radio class="item" ng-model="user.gender" ng-value="'male'" >{{ 'Male' | translate }}</ion-radio>
       <ion-radio class="item" ng-model="user.gender" ng-value="'female'" >{{ 'Female' | translate }}</ion-radio>
       <ion-radio class="item" ng-model="user.gender" ng-value="'other'" >{{ 'Other' | translate }}</ion-radio>
-      <button class="button button-block button-dark activated" ng-click="modal.hide()" translate>Create</button>
+      <button class="button button-block button-dark activated" ng-click="hideModal('ok')" translate>Create</button>
     </div>
   </ion-content>
 </ion-modal-view>

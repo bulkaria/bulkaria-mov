@@ -17,6 +17,7 @@ angular.module('bulkaria-mov', [
   'bulkaria-mov.controllers', 
   'bulkaria-mov.services', 
   'bulkaria-mov.providers', 
+  'bulkaria-mov.directives', 
   'gettext', 
   'angularUUID2'])
 
@@ -61,6 +62,24 @@ angular.module('bulkaria-mov', [
     }
   })
 
+  // setup an abstract state for change password directive
+  .state('change-password', {
+    url: "/chgpwd",
+    templateUrl: 'templates/change-password.html',
+    controller: 'ChangePasswordCtrl',
+    resolve: {
+      // controller will not be loaded until $requireAuth resolves
+      // Auth refers to our $firebaseAuth wrapper in the example above
+      "currentAuth": ["auth",
+        function (auth) {
+          // $requireAuth returns a promise so the resolve waits for it to complete
+          // If the promise is rejected, it will throw a $stateChangeError (see above)
+          //return auth.status().$requireAuth();
+          return auth.requireAuth();
+        }]
+    }
+  })
+  
   // setup an abstract state for the groups directive
   .state('groups', {
     url: "/groups",
@@ -157,7 +176,11 @@ angular.module('bulkaria-mov', [
           $log.info("Logged in as: " + authData.uid);
           $ionicLoading.hide();          
           $ionicHistory.clearCache();
-          $location.path('/groups');
+          if(authData.password.isTemporaryPassword) {
+            $location.path('/chgpwd');
+          } else {
+            $location.path('/groups');
+          }
         } else {
           $ionicLoading.hide();
           $ionicHistory.clearCache();
@@ -181,59 +204,3 @@ angular.module('bulkaria-mov', [
       });
     });                       
 }])
-
-.directive('onValidSubmit', ['$parse', '$timeout', function($parse, $timeout) {
-    return {
-      require: '^form',
-      restrict: 'A',
-      link: function(scope, element, attrs, form) {
-        form.$submitted = false;
-        var fn = $parse(attrs.onValidSubmit);
-        element.on('submit', function(event) {
-          scope.$apply(function() {
-            element.addClass('ng-submitted');
-            form.$submitted = true;
-            if (form.$valid) {
-              if (typeof fn === 'function') {
-                fn(scope, {$event: event});
-              }
-            }
-          });
-        });
-      }
-    }
- 
-  }])
-
-  .directive('validated', ['$parse', function($parse) {
-    return {
-      restrict: 'AEC',
-      require: '^form',
-      link: function(scope, element, attrs, form) {
-        var inputs = element.find("*");
-        for(var i = 0; i < inputs.length; i++) {
-          (function(input){
-            var attributes = input.attributes;
-            if (attributes.getNamedItem('ng-model') != void 0 && attributes.getNamedItem('name') != void 0) {
-              var field = form[attributes.name.value];
-              if (field != void 0) {
-                scope.$watch(function() {
-                  return form.$submitted + "_" + field.$valid;
-                }, function() {
-                  if (form.$submitted != true) return;
-                  var inp = angular.element(input);
-                  if (inp.hasClass('ng-invalid')) {
-                    element.removeClass('has-success');
-                    element.addClass('has-error');
-                  } else {
-                    element.removeClass('has-error').addClass('has-success');
-                  }
-                });
-              }
-            }
-          })(inputs[i]);
-        }
-      }
-    }
-  }])
-;
