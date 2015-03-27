@@ -166,7 +166,6 @@ angular.module('bulkaria-mov', [
       //$rootScope.ref = auth.getFirebaseRef();
       //$rootScope.ref = new Firebase("https://bulkaria-dev.firebaseio.com");
       //$rootScope.currentUser = auth.getCurrentUser();  
-
       
       // auth core init
       auth.init();
@@ -179,6 +178,7 @@ angular.module('bulkaria-mov', [
           if(authData.password.isTemporaryPassword) {
             $location.path('/chgpwd');
           } else {
+            auth.clearCurrentPassword();
             $location.path('/groups');
           }
         } else {

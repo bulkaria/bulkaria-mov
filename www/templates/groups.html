@@ -1,4 +1,4 @@
-<ion-view view-title="{{ 'Groups' | translate }}">
+<ion-view view-title="{{ 'Groups' | translate }}" hide-back-button="true">
   <ion-content>
     <ion-list ng-show="groups">
       <ion-item class="item-icon-left" ng-repeat="group in groups" type="item-text-wrap" ng-click="openChatRoom(room.id)">

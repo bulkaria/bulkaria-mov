@@ -3,6 +3,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
 .provider("auth", function backendProvider() {
   var firebaseRef = null;
   var currentUser = null;
+  var currentPassword = null;
 
   this.setFirebaseRef = function (firebaseUrl) {
     firebaseRef = new Firebase(firebaseUrl);
@@ -49,8 +50,18 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       return currentUser;
     };
 
+    services.getCurrentPassword = function() {
+      return currentPassword;
+    };
+    
+    services.clearCurrentPassword = function() {
+      currentPassword = null;
+    };
+
     services.onAuth = function (callback) {
-      return $firebaseAuth(firebaseRef).$onAuth(callback);
+      var authData = $firebaseAuth(firebaseRef).$getAuth();
+      if(typeof callback === "function") callback(authData);
+      return authData;
     };
 
     services.waitForAuth = function () {
@@ -151,6 +162,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     };
 
     services.signIn = function (callback) {
+      currentPassword = currentUser.password;
       firebaseRef.authWithPassword({
         email: currentUser.email,
         password: currentUser.password
@@ -275,10 +287,10 @@ angular.module("bulkaria-mov.providers", ["firebase"])
         });
       } else {
         if (typeof callback === "function") {
-          callback({
-            name: "noEmailError",
-            message: "No email address informed"
-          });
+          var error = new Error();
+          error.name = "noEmailError";
+          error.message = "No email address informed";
+          callback(error);
         }
       }
     };
@@ -298,16 +310,26 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       } else {
         $log.error("The current user has not user ID");
         if (typeof callback === "function") {
-          callback({
-            name: "noIdError",
-            message: "The current user has not user ID"
-          });
+          var error = new Error();
+          error.name = "noIdError";
+          error.message = "The current user has not user ID";          
+          callback(error);
         }
       }
     };
 
     services.resetPassword = function (email, callback) {
       firebaseRef.resetPassword(email, callback);
+    };
+    
+    services.changePassword = function(oldPassword, newPassword, callback) {
+      firebaseRef.changePassword({
+        email: currentUser.email,
+        oldPassword: oldPassword,
+        newPassword: newPassword
+      }, function(error) {
+        if (typeof callback === "function") callback(error)
+      });
     };
 
     return services;
