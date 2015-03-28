@@ -11,6 +11,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
 
   this.$get = ["$rootScope", "$firebaseAuth", "$log", "uuid2", function ($rootScope, $firebaseAuth, $log, uuid2) {
     var services = {};
+    var firebaseAuth = null;
     var userModel = {
       uid: null,
       fuid: null,
@@ -34,8 +35,9 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     };
 
     services.init = function () {  
+      firebaseAuth = $firebaseAuth(firebaseRef);
       currentUser = userModel;
-      var authData = $firebaseAuth(firebaseRef).$getAuth();
+      var authData = firebaseAuth.$getAuth();
       if (authData) {
         services.setSocialData(authData);
         if(!currentUser.uid) {
@@ -59,17 +61,21 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     };
 
     services.onAuth = function (callback) {
-      var authData = $firebaseAuth(firebaseRef).$getAuth();
+      var authData = firebaseAuth.$getAuth();
       if(typeof callback === "function") callback(authData);
       return authData;
     };
 
+    services.getFirebaseAuth = function () {
+        return firebaseAuth;
+    };
+
     services.waitForAuth = function () {
-      return $firebaseAuth(firebaseRef).$waitForAuth();
+      return firebaseAuth.$waitForAuth();
     };
 
     services.requireAuth = function () {
-      return $firebaseAuth(firebaseRef).$requireAuth();
+      return firebaseAuth.$requireAuth();
     };
 
     services.uid = function () {
@@ -163,50 +169,61 @@ angular.module("bulkaria-mov.providers", ["firebase"])
 
     services.signIn = function (callback) {
       currentPassword = currentUser.password;
-      firebaseRef.authWithPassword({
+      firebaseAuth.$authWithPassword({
         email: currentUser.email,
         password: currentUser.password
-      }, function (error, authData) {
-        if (error) {
-          $log.info("Login Failed!", error);
-        } else {
-          $log.info("User " + authData.uid + " is logged in with " + authData.provider);
-          //$log.info("authData: " + angular.toJson(authData, true));
+      }).then(function (authData) {
+        $log.info("User " + authData.uid + " is logged in with " + authData.provider);
+        //$log.info("authData: " + angular.toJson(authData, true));
 
-          // set current user in background
-          firebaseRef.child("users").child(authData.uid).once('value', function (snapshot) {
-            currentUser = val();            
-          });
-        }
-        if (typeof callback === "function") callback(error);        
+        // set current user in background
+        firebaseRef.child("users").child(authData.uid).once('value', function (snapshot) {
+          currentUser = snapshot.val();            
+        });
+        if (typeof callback === "function") callback(null);        
+      }).catch(function(error) {
+        $log.info("Login Failed!", error);
+        if (typeof callback === "function") callback(error);
       });
     };
 
     services.socialSignIn = function (provider, callback) {
       var authScope = services.getSocialScope(provider);
-
       // prefer pop-ups, so we don't navigate away from the page
-      firebaseRef.authWithOAuthPopup(provider, function (error, authData) {
+      firebaseAuth.$authWithOAuthPopup(provider, authScope).then(function(authData) {
+        socialSingInHandler(authData, callback);
+      }).catch(function(error) {
         if (error && error.code === "TRANSPORT_UNAVAILABLE") {
           // fall-back to browser redirects, and pick up the session
           // automatically when we come back to the origin page
-          firebaseRef.authWithOAuthRedirect(provider, socialSingInHandler(error, authData, callback), authScope);
-        } else if (error) {
+          firebaseAuth.$authWithOAuthRedirect(provider, authScope).then(function(authData){
+            socialSingInHandler(authData, callback);
+          }).catch(function(error){
+            $log.error("Error socialSignIn: " + error);
+            if (typeof callback === "function") callback(error);              
+          });
+        } else {
           $log.error("Error socialSignIn: " + error);
           if (typeof callback === "function") callback(error);
-        } else {
-          if (services.setSocialData(authData)) {
-            // create or update app user
-            services.createUser(callback);
-          } else {
-            $log.error("Cant update app user with social data");
-          }
-        }
-      }, authScope);
+        }          
+      });
+    };
+
+    services.socialSingInHandler = function(authData, callback) {
+      if (services.setSocialData(authData)) {
+        // create or update app user
+        services.createUser(callback);
+      } else {
+        var error = new Error();
+        error.name = "updSocialDataError";
+        error.message = "Cant update app user with social data";        
+        $log.error(error.message);
+        callback(error);
+      }  
     };
 
     services.signOut = function (callback) {
-      if (firebaseRef.getAuth()) firebaseRef.unauth();
+      if (firebaseAuth.$getAuth()) firebaseAuth.$unauth();
       currentUser = userModel;
       if (typeof callback === "function") callback();
     };
