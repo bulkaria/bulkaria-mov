@@ -6,7 +6,7 @@ angular.module('bulkaria-mov.controllers', [])
 
     // link current user to a scope variable for use in controller and views
     $scope.user = auth.getCurrentUser();
-
+      
     // need it to manage modal forms  
     $scope.hideModal = function (action) {
       $scope.modelAction = action;

@@ -169,24 +169,6 @@ angular.module('bulkaria-mov', [
       
       // auth core init
       auth.init();
-      
-      auth.onAuth(function (authData) {
-        if (authData) {
-          $log.info("Logged in as: " + authData.uid);
-          $ionicLoading.hide();          
-          $ionicHistory.clearCache();
-          if(authData.password.isTemporaryPassword) {
-            $location.path('/chgpwd');
-          } else {
-            auth.clearCurrentPassword();
-            $location.path('/groups');
-          }
-        } else {
-          $ionicLoading.hide();
-          $ionicHistory.clearCache();
-          $location.path('/login');
-        }
-      });
 
       $rootScope.logout = function () {
         $log.info(auth.uid() + " logged out");
@@ -202,5 +184,24 @@ angular.module('bulkaria-mov', [
           $location.path("/login");
         }
       });
+
+      auth.onAuth(function (authData) {
+        if (authData) {
+          $log.info("Logged in as: " + authData.uid);
+          $ionicLoading.hide();          
+          $ionicHistory.clearCache();
+          if(authData.provider === "password" && authData.password.isTemporaryPassword) {
+            $location.path('/chgpwd');
+          } else {
+            auth.clearCurrentPassword();
+            $location.path('/groups');
+          }
+        } else {
+          $ionicLoading.hide();
+          $ionicHistory.clearCache();
+          $location.path('/login');
+        }
+      });
+
     });                       
 }])
