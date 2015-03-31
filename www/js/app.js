@@ -171,7 +171,7 @@ angular.module('bulkaria-mov', [
       auth.init();
 
       $rootScope.logout = function () {
-        $log.info(auth.uid() + " logged out");
+        $log.info(auth.getCurrentUser().email + " logged out");
         $ionicLoading.show();
         auth.signOut();
       };

@@ -11,19 +11,15 @@ angular.module("bulkaria-mov.providers", ["firebase"])
 
   this.$get = ["$rootScope", "$firebaseAuth", "$log", "uuid2", function ($rootScope, $firebaseAuth, $log, uuid2) {
     var services = {};
+    var internals = {};
     var firebaseAuth = null;
 
     services.init = function () {
       firebaseAuth = $firebaseAuth(firebaseRef);
-      services.clearCurrentUser();
+      internals.clearCurrentUser();
       var authData = firebaseAuth.$getAuth();
       if (authData) {
-        services.setSocialData(authData);
-        if (!currentUser.uid) {
-          services.getUidByEmail(currentUser.email, function (uid) {
-            currentUser.uid = uid;
-          });
-        }
+        internals.setUserData(authData);
       }
     };
 
@@ -35,27 +31,13 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       return currentPassword;
     };
 
-    services.clearCurrentUser = function () {
-      currentUser.uid = null;
-      currentUser.fuid = null;
-      currentUser.guid = null;
-      currentUser.tuid = null;
-      currentUser.email = null;
-      currentUser.displayName = null;
-      currentUser.firstName = null;
-      currentUser.lastName = null;
-      currentUser.nickName = null;
-      currentUser.gender = null;
-      currentUser.picture = null;
+    internals.clearCurrentUser = function () {
+      for (var key in currentUser) {
+        currentUser[key] = null;
+      }
       currentUser.active = false;
-      currentUser.provider = null;
-      currentUser.isTemporaryPassword = null;
-      currentUser.facebookAccessToken = null;
-      currentUser.googleAccessToken = null;
-      currentUser.twitterAccessToken = null;
-      currentUser.twitterAccessTokenSecret = null;
       currentUser.status = "memory";
-      currentPassword = null;
+      services.clearCurrentPassword();
     };
 
     services.clearCurrentPassword = function () {
@@ -78,15 +60,8 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       return firebaseAuth.$requireAuth();
     };
 
-    services.uid = function () {
-      if (currentUser)
-        return currentUser.uid;
-      else
-        return "unknow";
-    };
-
-    services.setSocialData = function (authData) {
-      var socialData = {
+    internals.setUserData = function (authData) {
+      var userData = {
         facebook: function (authData) {
           currentUser.fuid = authData.uid;
           currentUser.email = authData.facebook.cachedUserProfile.email;
@@ -141,15 +116,15 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       };
 
       try {
-        socialData[authData.provider](authData);
+        userData[authData.provider](authData);
         return true;
       } catch (e) {
-        $log.error("setSocialData error: " + e);
+        $log.error("setUserData error: " + e);
         return false;
       }
     };
 
-    services.getSocialScope = function (provider) {
+    internals.getSocialScope = function (provider) {
       return {
         facebook: {
           scope: "email"
@@ -171,13 +146,13 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       currentPassword = currentUser.password;
       firebaseAuth.$authWithPassword({
         email: currentUser.email,
-        password: currentUser.password
+        password: currentPassword
       }).then(function (authData) {
         $log.info("User " + authData.uid + " is logged in with " + authData.provider);
         //$log.info("authData: " + angular.toJson(authData, true));
 
         // set current user in background
-        firebaseRef.child("users").child(authData.uid).once('value', function (snapshot) {
+        firebaseRef.child("users").child(internals.encodeEmail(currentUser.email)).once('value', function (snapshot) {
           currentUser = snapshot.val();
         });
         if (typeof callback === "function") callback(null);
@@ -188,16 +163,16 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     };
 
     services.socialSignIn = function (provider, callback) {
-      var authScope = services.getSocialScope(provider);
+      var authScope = internals.getSocialScope(provider);
       // prefer pop-ups, so we don't navigate away from the page
       firebaseAuth.$authWithOAuthPopup(provider, authScope).then(function (authData) {
-        services.socialSingInHandler(authData, callback);
+        internals.socialSingInHandler(authData, callback);
       }).catch(function (error) {
         if (error && error.code === "TRANSPORT_UNAVAILABLE") {
           // fall-back to browser redirects, and pick up the session
           // automatically when we come back to the origin page
           firebaseAuth.$authWithOAuthRedirect(provider, authScope).then(function (authData) {
-            services.socialSingInHandler(authData, callback);
+            internals.socialSingInHandler(authData, callback);
           }).catch(function (error) {
             $log.error("Error socialSignIn: " + error);
             if (typeof callback === "function") callback(error);
@@ -209,158 +184,112 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       });
     };
 
-    services.socialSingInHandler = function (authData, callback) {
-      if (services.setSocialData(authData)) {
-        // create or update app user
-        services.createUser(callback);
+    internals.socialSingInHandler = function (authData, callback) {
+      if (internals.setUserData(authData)) {
+        // update app user
+        internals.updateAppUser(callback);
       } else {
         var error = new Error();
-        error.name = "updSocialDataError";
+        error.name = "setUserDataError";
         error.message = "Cant update app user with social data";
         $log.error(error.message);
         callback(error);
       }
     };
 
-    services.signOut = function (callback) {
-      if (firebaseAuth.$getAuth()) firebaseAuth.$unauth();
-      services.clearCurrentUser();
-      if (typeof callback === "function") callback();
-    };
-
-    services.getUidByEmail = function (email, callback) {
-      var error = new Error();
-      error.name = "userNotExist";
-      error.description = "The user with email " + email + " does not exist";
-      firebaseRef.child("users").startAt(email).endAt(email).once('value', function (snap) {
-        snap.forEach(function (childSnap) {
-          callback(childSnap.val().uid, null);
-          return true;
-        });
-      });
-      callback(null, error);
-      return false;
-    }
-
-    // create both, Firebase and app user or update if exists
-    services.createUser = function (callback) {
-      $log.info("Create User Function called");
-
-      // email is the key
-      if (currentUser.email) {
-        var authData = firebaseAuth.$getAuth();
-        // if the user is loged in
-        if(authData) {
-          // check if app user exists
-          services.getUidByEmail(currentUser.email, function (uid, error) {
-            // if not add app user
-            if(error) {
-              // update status
-              currentUser.status = "stored";
-              // create app user
-              services.createAppUser(callback);
-            } else {
-              // update app user
-              services.updateAppUser(callback);                  
-            }
-          });          
-        } else {
-          firebaseAuth.$createUser({
-            email: currentUser.email,
-            password: uuid2.newuuid() // random password
-          }).then(function (authData) {
-            // is a new user, then we need create own internal user
-            // update new uid
-            currentUser.uid = userData.uid;
-            // update status
-            currentUser.status = "stored";
-            // set provider
-            //if (!currentUser.provider) currentUser.provider = "password";
-            currentUser.provider = authData.provider;
-            // create app user
-            services.createAppUser(callback);
-          }).catch(function (error) {
-            console.log("Error creating user:", error);
-            if (typeof callback === "function") callback(error);          
-/*            
-            if (currentUser.provider !== "password" && error.code === "EMAIL_TAKEN") {
-              // the user exists but is trying to access via other provider
-              // get uid from existing user
-              services.getUidByEmail(currentUser.email, function (uid, error) {
-                if(error) {
-                  services.createAppUser(callback);          
-                } else {
-                  currentUser.uid = uid;
-                  services.updateAppUser(callback);                  
-                }
-              });
-            } else {
-              console.log("Error creating user:", error);
-              if (typeof callback === "function") callback(error);
-            }
-*/            
-          });
-        }
-      } else {
-        if (typeof callback === "function") {
-          var error = new Error();
-          error.name = "noEmailError";
-          error.message = "No email address informed";
-          callback(error);
-        }
-      }
-    };
-
-    services.createAppUser = function(callback) {
-      firebaseRef.child("users").child(currentUser.uid).setWithPriority(currentUser, currentUser.email, function (error) {
-        if (error) {
-          $log.error("Create app user error: " + error);
-          currentUser.status = "error";
-          if (typeof callback === "function") callback(error);
-        } else {
-          // if the provider is firebase, we need sen a new password
-          if (currentUser.provider === "password") {
-            // reset password and send email
-            firebaseRef.resetPassword({
-              email: currentUser.email
-            }, function (error) {
-              if (error) {
-                $log.error("Error in resert user password: " + error);
-              } else {
-                $log.info("Successfully created user account with uid: " + currentUser.uid);
-              }
-              if (typeof callback === "function") callback(error);
-            });
-          }
-        }
-      });        
+    internals.encodeEmail = function (email) {
+      return email.replace(/\./g, ':');
     };
 
     // Save or update current user
-    services.updateAppUser = function (callback) {
-      if (currentUser.uid) {
-        firebaseRef.child("users").child(currentUser.uid).update(currentUser, function (error) {
-          if (error) {
-            $log.error("Update app user error: " + error);
-            if (typeof callback === "function") callback(error);
+    internals.updateAppUser = function (callback) {
+      if (currentUser.email) {
+        firebaseRef.child("users").once("value", function (snapshot) {
+          var encEmail = internals.encodeEmail(currentUser.email);
+          if (snapshot.hasChild(encEmail)) {
+            currentUser.status = "updated";
+            firebaseRef.child("users").child(encEmail).update(currentUser, function (error) {
+              if (error) {
+                $log.error("Update app user error: " + error);
+                if (typeof callback === "function") callback(error);
+              } else {
+                $log.info("The app user had been updated");
+                if (typeof callback === "function") callback(null);
+              }
+            });
           } else {
-            $log.info("The app user had been updated");
-            if (typeof callback === "function") callback(null);
+            // the app user doen't exist
+            internals.createAppUser(callback);
           }
         });
       } else {
-        $log.error("The current user has not user ID");
-        if (typeof callback === "function") {
-          var error = new Error();
-          error.name = "noIdError";
-          error.message = "The current user has not user ID";
-          callback(error);
-        }
+        if (typeof callback === "function") callback(internals.noEmailError);
       }
     };
 
+    internals.createAppUser = function (callback) {
+      if (currentUser.email) {
+        currentUser.status = "stored";
+        firebaseRef.child("users").child(internals.encodeEmail(currentUser.email)).set(currentUser, function (error) {
+          if (error) {
+            $log.error("Create app user error: " + error);
+            currentUser.status = "error";
+          }
+          if (typeof callback === "function") callback(error);          
+        });
+      } else {
+        if (typeof callback === "function") callback(internals.noEmailError);
+      }
+    };
+
+    // create firabase auth user 
+    services.createUser = function (callback) {
+      $log.info("Create User Function called");
+      // email is the key
+      if (currentUser.email) {
+        firebaseAuth.$createUser({
+          email: currentUser.email,
+          password: uuid2.newuuid() // random password
+        }).then(function (authData) {
+          currentUser.provider = "password";
+          currentUser.uid = authData.uid;
+          // reset password and send email
+          services.resetPassword(currentUser.email, function(error){
+              if(error){
+                  $log.error("Error reseting password: " + error)
+              }
+              // whe need update or create internal app user
+              internals.updateAppUser(callback);
+          });          
+        }).catch(function (error) {
+          console.log("Error creating user:", error);
+          if (typeof callback === "function") callback(error);
+        });
+      } else {
+        if (typeof callback === "function") callback(internals.noEmailError);
+      }
+    };
+
+    internals.noEmailError = function () {
+      var error = new Error();
+      $log.error("The current user has not email");
+      error.name = "noEmailError";
+      error.message = "The current user has not email";
+      return error;
+    };
+
+    services.signOut = function (callback) {
+      if (firebaseAuth.$getAuth()) firebaseAuth.$unauth();
+      internals.clearCurrentUser();
+      if (typeof callback === "function") callback();
+    };
+
     services.resetPassword = function (email, callback) {
-      firebaseRef.resetPassword(email, callback);
+      firebaseRef.resetPassword({
+        email: currentUser.email
+      }, function (error) {
+        if (typeof callback === "function") callback(error);
+      });
     };
 
     services.changePassword = function (oldPassword, newPassword, callback) {
