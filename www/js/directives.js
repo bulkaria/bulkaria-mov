@@ -1,3 +1,4 @@
+'use strict';
 angular.module("bulkaria-mov.directives", [])
 
 .directive('onValidSubmit', ['$parse', '$timeout', function ($parse, $timeout) {

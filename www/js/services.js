@@ -1,3 +1,4 @@
+'use strict';
 angular.module("bulkaria-mov.services", ["firebase"])
 
 .factory("popup", ["$ionicPopup", "gettextCatalog",

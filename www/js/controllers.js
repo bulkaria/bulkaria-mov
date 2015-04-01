@@ -1,3 +1,4 @@
+'use strict';
 angular.module('bulkaria-mov.controllers', ["firebase"])
 
 .controller('LoginCtrl', ["$log", "$scope", "$ionicModal", "$state", "$ionicLoading", "$rootScope", "gettextCatalog", "popup", "auth",

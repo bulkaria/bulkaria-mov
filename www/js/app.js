@@ -1,4 +1,5 @@
 // bulkaria-mov
+'use strict';
 
 function onDeviceReady() {
   angular.bootstrap(document, ["bulkaria-mov"]);

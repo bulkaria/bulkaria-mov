@@ -1,3 +1,4 @@
+'use strict';
 angular.module("bulkaria-mov.providers", ["firebase"])
 
 .provider("auth", function backendProvider() {
