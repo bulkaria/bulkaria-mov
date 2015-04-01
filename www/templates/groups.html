@@ -1,20 +1,21 @@
 <ion-view view-title="{{ 'Groups' | translate }}" hide-back-button="true">
   <ion-content>
-    <ion-list ng-show="groups">
-      <ion-item class="item-icon-left" ng-repeat="group in groups" type="item-text-wrap" ng-click="openChatRoom(room.id)">
-        <i class="icon {{group.icon}}"></i>
+    <div class="list card" ng-repeat="group in groups">
+      <div class="item item-icon-left dark">
+        <i class="icon {{group.context-icon}}"></i>
         <h2>{{group.name}}</h2>
-      </ion-item>
-    </ion-list>
-    <ion-list ng-hide="groups.length">
-      <ion-item class="textCenter" translate>
-        <i class="icon ion-loading-c"></i> Loading groups
-      </ion-item>
-    </ion-list>
-    <ion-list ng-hide="!groups.length">
-      <ion-item class="textCenter" ng-click="logout()" translate>
-        <i class="icon ion-log-out"></i> Logout
-      </ion-item>
-    </ion-list>
+        <p>{{group.description}}</p>
+      </div>
+      <div class="item item-image">
+        <img ng-src="{{group.picture}}">
+      </div>
+      <div class="item item-icon-left balanced">
+        <i class="icon ion-ios-information-outline"></i>
+        <p>{{group.notes}}</p>
+      </div>
+    </div>
+    <center>
+      <ion-spinner icon="spiral" ng-hide="groups.length"></ion-spinner>
+    </center>
   </ion-content>
 </ion-view>

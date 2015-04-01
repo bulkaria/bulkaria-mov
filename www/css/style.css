@@ -1,3 +1,25 @@
+@keyframes animatedBackground {
+    from { background-position: 0 0; }
+    to { background-position: 100% 0; }
+}
+
+@-webkit-keyframes animatedBackground {
+    from { background-position: 0 0; }
+    to { background-position: 100% 0; }
+}
+
+.login {
+  background: url('../img/imagen-turismo-blur.png');
+  background-position: 0px 0px;
+  background-repeat: repeat-x;
+  background-size:cover;
+  -webkit-animation:animatedBackground 80s linear infinite;
+  -moz-animation:animatedBackground 80s linear infinite;
+  -ms-animation:animatedBackground 80s linear infinite;
+  -o-animation:animatedBackground 80s linear infinite;
+  animation:animatedBackground 80s linear infinite;
+}
+
 .avatar {
   width: 80px;
   height: 80px;

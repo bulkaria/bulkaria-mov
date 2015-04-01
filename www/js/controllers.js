@@ -1,4 +1,4 @@
-angular.module('bulkaria-mov.controllers', [])
+angular.module('bulkaria-mov.controllers', ["firebase"])
 
 .controller('LoginCtrl', ["$log", "$scope", "$ionicModal", "$state", "$ionicLoading", "$rootScope", "gettextCatalog", "popup", "auth",
   function ($log, $scope, $ionicModal, $state, $ionicLoading, $rootScope, gettextCatalog, popup, auth) {
@@ -34,7 +34,7 @@ angular.module('bulkaria-mov.controllers', [])
           popup.alert("Authentication failed", error);
         } else {
           $log.info("User " + $scope.user.uid + " is logged in with " + $scope.user.provider);
-          $state.go('groups');
+          $state.go('main.groups');
         }
       });
     };
@@ -125,7 +125,7 @@ angular.module('bulkaria-mov.controllers', [])
         } else {
           $log.info("Password changed successfully");
           popup.alert("Congrat!", "Password changed successfully");
-          $state.go('groups');
+          $state.go('main.groups');
         }
       });
     };
@@ -134,34 +134,55 @@ angular.module('bulkaria-mov.controllers', [])
 .controller("MainCtrl", ["$rootScope", "$scope", "$state", "$log", "auth", function ($rootScope, $scope, $state, $log, auth) {
   $log.info("Main Controller initialized");
 
-  $scope.user = auth.getCurrentUser();
-
   $rootScope.$on("userReady", function () {
-    if (!$scope.user.picture) {
-      switch ($scope.gender) {
-      case "male":
-        $scope.user.picture = "/img/male-avatar.svg";
-        break;
-      case "female":
-        $scope.user.picture = "/img/female-avatar.svg";
-        break;
-      default:
-        $scope.user.picture = "/img/generic-avatar.svg";
+    $scope.$apply(function () {
+      $scope.user = auth.getCurrentUser();
+
+      if (!$scope.user.picture) {
+        switch ($scope.gender) {
+        case "male":
+          $scope.user.picture = "/img/male-avatar.svg";
+          break;
+        case "female":
+          $scope.user.picture = "/img/female-avatar.svg";
+          break;
+        default:
+          $scope.user.picture = "/img/generic-avatar.svg";
+        }
       }
-    }
+    });
   });
-  
+
 }])
 
-.controller("GroupsCtrl", ["$rootScope", "$scope", "Groups", "$state", "$log", function ($rootScope, $scope, Groups, $state, $log) {
+.controller("ProfileCtrl", ["$rootScope", "$scope", "auth", "$state", "$log", function ($rootScope, $scope, auth, $state, $log) {
+  $log.info("Profile Controller initialized");
+
+
+}])
+
+.controller("GroupsCtrl", ["$rootScope", "$scope", "$state", "$log", "$firebaseObject", "auth", function ($rootScope, $scope, $state, $log, $firebaseObject, auth) {
   $log.info("Groups Controller initialized");
 
-  $scope.groups = Groups.all();
+  var ref = auth.getFirebaseRef;
+  var groups = $firebaseObject(ref);
+/*
+  // to take an action after the data loads, use the $loaded() promise
+  groups.$loaded().then(function () {
+    $log.info("loaded record:", groups.$id);
+  });
 
+  // To make the data available in the DOM, assign it to $scope
+  $scope.groups = groups;
+
+  // For three-way data bindings, bind it to the scope instead
+  obj.$bindTo($scope, "groups");
+
+  // TODO
   $scope.openGroup = function (groupId) {
     $state.go('tabs', {
       groupId: groupId
     });
   };
-
+*/
 }]);

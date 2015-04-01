@@ -20,6 +20,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       var authData = firebaseAuth.$getAuth();
       if (authData) {
         internals.setUserData(authData);
+        internals.getUserData();
       }
     };
 
@@ -114,7 +115,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
           currentUser.status = "memory";
         }
       };
-
+      
       try {
         userData[authData.provider](authData);
         return true;
@@ -124,6 +125,28 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       }
     };
 
+    internals.getUserData = function (callback) {
+      if (currentUser.email) {
+        var encEmail = internals.encodeEmail(currentUser.email);
+        
+        firebaseRef.child("users").once("value", function (snapshot) {        
+          if (snapshot.hasChild(encEmail)) {
+            var userData = snapshot.child(encEmail).val();
+            for (var key in userData) {
+              if(!currentUser[key]) currentUser[key] = userData[key];
+            }
+            $rootScope.$emit("userReady");
+            if (typeof callback === "function") callback(null);                  
+          } else {
+            // the app user doen't exist
+            internals.createAppUser(callback);
+          }
+        });
+      } else {
+        if (typeof callback === "function") callback(internals.noEmailError);        
+      }
+    };
+    
     internals.getSocialScope = function (provider) {
       return {
         facebook: {
@@ -152,12 +175,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
         //$log.info("authData: " + angular.toJson(authData, true));
 
         // set current user in background
-        firebaseRef.child("users").child(internals.encodeEmail(currentUser.email)).once('value', function (snapshot) {
-          currentUser = snapshot.val();
-          // update or create app user
-          internals.updateAppUser(callback);
-        });
-        if (typeof callback === "function") callback(null);
+        internals.updateAppUser(callback);        
       }).catch(function (error) {
         $log.info("Login Failed!", error);
         if (typeof callback === "function") callback(error);
@@ -217,15 +235,10 @@ angular.module("bulkaria-mov.providers", ["firebase"])
                 if (typeof callback === "function") callback(error);
               } else {
                 $log.info("The app user had been updated");
-                // update current user from firebase
-                userRef.once('value', function (dataSnapshot) {
-                  var userData = dataSnapshot.val();
-                  for (var key in userData) {
-                    if(!currentUser[key]) currentUser[key] = userData[key];
-                  }
-                  if (typeof callback === "function") callback(null);                  
-                  $rootScope.$emit("userReady");
-                });                
+                // get full data
+                internals.getUserData(function (error) {
+                  if (typeof callback === "function") callback(error);
+                });
               }
             });
           } else {

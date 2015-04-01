@@ -1,4 +1,4 @@
-<ion-view view-title="{{ 'Login' | translate }}" hide-back-button="true">
+<ion-view view-title="{{ 'Login' | translate }}" hide-back-button="true" hide-nav-bar="true" class="login">
   <ion-content class="padding">
     <div class="list">
       <img src="img/logo1.png" class="logo">
@@ -20,24 +20,24 @@
           Sign In
         </button>
       </form>
-      <p class="logoText" translate>Or singn in with</p>
+      <center><h4 translate>Or singn in with</h4></center>      
       <center>
-      <button ng-click="socialSignIn('facebook')" class="button button-medium button-positive icon-left ion-social-facebook activated">
+      <button ng-click="socialSignIn('facebook')" class="button button-small button-positive icon-left ion-social-facebook activated">
         &nbsp;&nbsp;<b>Facebook</b>
       </button>
-      <button ng-click="socialSignIn('google')" class="button button-medium button-assertive icon-left ion-social-googleplus activated">
+      <button ng-click="socialSignIn('google')" class="button button-small button-assertive icon-left ion-social-googleplus activated">
         &nbsp;&nbsp;<b>Google+</b>
       </button>
-      <button ng-click="socialSignIn('twitter')" class="button button-medium button-calm icon-left ion-social-twitter activated">
+      <button ng-click="socialSignIn('twitter')" class="button button-small button-calm icon-left ion-social-twitter activated">
         &nbsp;&nbsp;<b>Twitter</b>
       </button>
       </center>
     </div>
     <div class="list" style="text-align:center">
-      <button ng-click="signUp()" class="button button-small button-outline icon-left ion-person-add button-black" translate>
+      <button ng-click="signUp()" class="button button-small button-outline icon-left ion-person-add button-dark" translate>
         Create New Account
       </button>
-      <button ng-click="forgotPassword()" class="button button-small button-outline icon-left ion-ios-help button-black" translate>
+      <button ng-click="forgotPassword()" class="button button-small button-outline icon-left ion-ios-help button-dark" translate>
         Forgot password
       </button>
     </div>

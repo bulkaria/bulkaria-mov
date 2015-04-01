@@ -132,6 +132,16 @@ angular.module('bulkaria-mov', [
     */
   })
 
+  .state('main.profile', {
+    url: "/profile",
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/profile.html',
+        controller: 'ProfileCtrl'
+      }
+    }
+  })
+  
   // setup an abstract state for the tabs directive
   .state('tab', {
     url: "/tab",
