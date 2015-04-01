@@ -59,7 +59,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     services.requireAuth = function () {
       return firebaseAuth.$requireAuth();
     };
-
+    
     internals.setUserData = function (authData) {
       var userData = {
         facebook: function (authData) {
@@ -148,12 +148,14 @@ angular.module("bulkaria-mov.providers", ["firebase"])
         email: currentUser.email,
         password: currentPassword
       }).then(function (authData) {
-        $log.info("User " + authData.uid + " is logged in with " + authData.provider);
+        $log.info("User " + currentUser.email + " is logged in with " + authData.provider);
         //$log.info("authData: " + angular.toJson(authData, true));
 
         // set current user in background
         firebaseRef.child("users").child(internals.encodeEmail(currentUser.email)).once('value', function (snapshot) {
           currentUser = snapshot.val();
+          // update or create app user
+          internals.updateAppUser(callback);
         });
         if (typeof callback === "function") callback(null);
       }).catch(function (error) {
@@ -207,14 +209,23 @@ angular.module("bulkaria-mov.providers", ["firebase"])
         firebaseRef.child("users").once("value", function (snapshot) {
           var encEmail = internals.encodeEmail(currentUser.email);
           if (snapshot.hasChild(encEmail)) {
+            var userRef = firebaseRef.child("users").child(encEmail);
             currentUser.status = "updated";
-            firebaseRef.child("users").child(encEmail).update(currentUser, function (error) {
+            userRef.update(currentUser, function (error) {
               if (error) {
                 $log.error("Update app user error: " + error);
                 if (typeof callback === "function") callback(error);
               } else {
                 $log.info("The app user had been updated");
-                if (typeof callback === "function") callback(null);
+                // update current user from firebase
+                userRef.once('value', function (dataSnapshot) {
+                  var userData = dataSnapshot.val();
+                  for (var key in userData) {
+                    if(!currentUser[key]) currentUser[key] = userData[key];
+                  }
+                  if (typeof callback === "function") callback(null);                  
+                  $rootScope.$emit("userReady");
+                });                
               }
             });
           } else {
@@ -253,6 +264,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
         }).then(function (authData) {
           currentUser.provider = "password";
           currentUser.uid = authData.uid;
+          currentUser.displayName = currentUser.firstName + " " + currentUser.lastName;
           // reset password and send email
           services.resetPassword(currentUser.email, function(error){
               if(error){

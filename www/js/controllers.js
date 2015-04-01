@@ -6,7 +6,7 @@ angular.module('bulkaria-mov.controllers', [])
 
     // link current user to a scope variable for use in controller and views
     $scope.user = auth.getCurrentUser();
-      
+
     // need it to manage modal forms  
     $scope.hideModal = function (action) {
       $scope.modelAction = action;
@@ -117,7 +117,7 @@ angular.module('bulkaria-mov.controllers', [])
 
     $scope.changePassword = function (currentPassword, newPassword) {
       $ionicLoading.show();
-      auth.changePassword(currentPassword, newPassword, function(error) {
+      auth.changePassword(currentPassword, newPassword, function (error) {
         $ionicLoading.hide();
         if (error) {
           $log.info("Error changing password:", error);
@@ -126,9 +126,31 @@ angular.module('bulkaria-mov.controllers', [])
           $log.info("Password changed successfully");
           popup.alert("Congrat!", "Password changed successfully");
           $state.go('groups');
-        }       
+        }
       });
     };
+}])
+
+.controller("MainCtrl", ["$rootScope", "$scope", "$state", "$log", "auth", function ($rootScope, $scope, $state, $log, auth) {
+  $log.info("Main Controller initialized");
+
+  $scope.user = auth.getCurrentUser();
+
+  $rootScope.$on("userReady", function () {
+    if (!$scope.user.picture) {
+      switch ($scope.gender) {
+      case "male":
+        $scope.user.picture = "/img/male-avatar.svg";
+        break;
+      case "female":
+        $scope.user.picture = "/img/female-avatar.svg";
+        break;
+      default:
+        $scope.user.picture = "/img/generic-avatar.svg";
+      }
+    }
+  });
+  
 }])
 
 .controller("GroupsCtrl", ["$rootScope", "$scope", "Groups", "$state", "$log", function ($rootScope, $scope, Groups, $state, $log) {

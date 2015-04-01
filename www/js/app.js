@@ -61,10 +61,35 @@ angular.module('bulkaria-mov', [
         }]
     }
   })
+  
+  // setup an abstract state for change password directive
+  .state('main', {
+    url: "/main",
+    templateUrl: 'templates/main.html',
+    controller: 'MainCtrl',
+    resolve: {
+      // controller will not be loaded until $requireAuth resolves
+      // Auth refers to our $firebaseAuth wrapper in the example above
+      "currentAuth": ["auth",
+        function (auth) {
+          // $requireAuth returns a promise so the resolve waits for it to complete
+          // If the promise is rejected, it will throw a $stateChangeError (see above)
+          //return auth.status().$requireAuth();
+          return auth.requireAuth();
+        }]
+    }
+  })  
 
   // setup an abstract state for change password directive
   .state('change-password', {
     url: "/chgpwd",
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/change-password.html',
+        controller: 'ChangePasswordCtrl'
+      }
+    }    
+    /*
     templateUrl: 'templates/change-password.html',
     controller: 'ChangePasswordCtrl',
     resolve: {
@@ -78,11 +103,19 @@ angular.module('bulkaria-mov', [
           return auth.requireAuth();
         }]
     }
+    */
   })
   
   // setup an abstract state for the groups directive
-  .state('groups', {
+  .state('main.groups', {
     url: "/groups",
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/groups.html',
+        controller: 'GroupsCtrl'
+      }
+    }
+    /*    
     templateUrl: 'templates/groups.html',
     controller: 'GroupsCtrl',
     resolve: {
@@ -92,10 +125,11 @@ angular.module('bulkaria-mov', [
         function (auth) {
           // $requireAuth returns a promise so the resolve waits for it to complete
           // If the promise is rejected, it will throw a $stateChangeError (see above)
-          //return auth.status().$requireAuth();
+          //return au th.status().$requireAuth();
           return auth.requireAuth();
         }]
     }
+    */
   })
 
   // setup an abstract state for the tabs directive
@@ -161,7 +195,7 @@ angular.module('bulkaria-mov', [
      // traslate stuffs
       $log.info("Base language: " + gettextCatalog.baseLanguage);
       gettextCatalog.setCurrentLanguage('es');
-      gettextCatalog.debug = true;    
+      //gettextCatalog.debug = true;    
 
       //$rootScope.ref = auth.getFirebaseRef();
       //$rootScope.ref = new Firebase("https://bulkaria-dev.firebaseio.com");
@@ -191,10 +225,10 @@ angular.module('bulkaria-mov', [
           $ionicLoading.hide();          
           $ionicHistory.clearCache();
           if(authData.provider === "password" && authData.password.isTemporaryPassword) {
-            $location.path('/chgpwd');
+            $location.path('/main/chgpwd');
           } else {
             auth.clearCurrentPassword();
-            $location.path('/groups');
+            $location.path('/main/groups');
           }
         } else {
           $ionicLoading.hide();

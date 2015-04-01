@@ -1,0 +1,36 @@
+<ion-view hide-nav-bar="true">
+  <ion-side-menus enable-menu-with-back-views="false">
+    <ion-side-menu-content>
+      <ion-nav-bar class="bar-stable">
+        <ion-nav-back-button>
+        </ion-nav-back-button>
+        <ion-nav-buttons side="left">
+          <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
+          </button>
+        </ion-nav-buttons>
+      </ion-nav-bar>
+      <ion-nav-view name="menuContent"></ion-nav-view>
+    </ion-side-menu-content>
+
+    <ion-side-menu side="left">
+      <ion-content>
+        <div class="item item-thumbnail-left item-positive">
+          <img ng-src="{{user.picture}}" class="avatar" />
+          <h2>{{user.displayName}}</h2>
+          <p translate>{{user.provider}} user</p>
+        </div>
+        <ion-list>
+          <ion-item class="item-dark" nav-clear menu-close href="#/main/groups" translate>
+            My Groups
+          </ion-item>
+          <ion-item class="item-dark" ng-if="user.provider === 'password'" nav-clear menu-close href="#/main/chgpwd" translate>
+            Change Password
+          </ion-item>          
+          <ion-item class="item-dark" nav-clear menu-close ng-click="logout()" translate>
+            <i class="icon ion-log-out"></i> Logout
+          </ion-item>
+        </ion-list>
+      </ion-content>
+    </ion-side-menu>
+  </ion-side-menus>
+</ion-view>
