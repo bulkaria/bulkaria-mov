@@ -162,12 +162,12 @@ angular.module('bulkaria-mov.controllers', ["firebase"])
 
 }])
 
-.controller("GroupsCtrl", ["$rootScope", "$scope", "$state", "$log", "$firebaseObject", "auth", function ($rootScope, $scope, $state, $log, $firebaseObject, auth) {
+.controller("GroupsCtrl", ["$rootScope", "$scope", "$state", "$log", "auth", "$firebaseObject", function ($rootScope, $scope, $state, $log, auth, $firebaseObject) {
   $log.info("Groups Controller initialized");
 
-  var ref = auth.getFirebaseRef;
-  var groups = $firebaseObject(ref);
-/*
+  var ref = auth.getFirebaseRef();
+  var groups = $firebaseObject(ref.child("groups"));
+
   // to take an action after the data loads, use the $loaded() promise
   groups.$loaded().then(function () {
     $log.info("loaded record:", groups.$id);
@@ -177,7 +177,7 @@ angular.module('bulkaria-mov.controllers', ["firebase"])
   $scope.groups = groups;
 
   // For three-way data bindings, bind it to the scope instead
-  obj.$bindTo($scope, "groups");
+  groups.$bindTo($scope, "groups");
 
   // TODO
   $scope.openGroup = function (groupId) {
@@ -185,5 +185,4 @@ angular.module('bulkaria-mov.controllers', ["firebase"])
       groupId: groupId
     });
   };
-*/
 }]);
