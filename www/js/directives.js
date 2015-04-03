@@ -23,8 +23,7 @@ angular.module("bulkaria-mov.directives", [])
       });
     }
   }
-
-  }])
+}])
 
 .directive('validated', ['$parse', function ($parse) {
   return {
@@ -56,22 +55,17 @@ angular.module("bulkaria-mov.directives", [])
       }
     }
   }
-  }])
+}])
 
-/*
-  .directive('pwCheck', [function () {
-    return {
-      require: 'ngModel',
-      link: function (scope, elem, attrs, ctrl) {
-        var firstPassword = '#' + attrs.pwCheck;
-        elem.add(firstPassword).on('keyup', function () {
-          scope.$apply(function () {
-            var v = elem.val()===$(firstPassword).val();
-            ctrl.$setValidity('pwmatch', v);
-          });
+.directive('onFinishRender', function ($timeout) {
+  return {
+    restrict: 'A',
+    link: function (scope, element, attr) {
+      if (scope.$last === true) {
+        $timeout(function () {
+          scope.$emit('ngRepeatFinished');
         });
       }
     }
-  }])
-  */
-  ;
+  }
+});

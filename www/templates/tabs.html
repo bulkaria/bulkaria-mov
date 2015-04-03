@@ -1,23 +1,18 @@
-<!--
-Create tabs with an icon and label, using the tabs-positive style.
-Each tab's child <ion-nav-view> directive will have its own
-navigation history that also transitions its views in and out.
--->
-<ion-tabs class="tabs-icon-top tabs-color-active-positive">
+<ion-tabs class="tabs-stable tabs-icon-top tabs-color-active-royal">
 
-    <!-- Rooms List Tab -->
-    <ion-tab title="Rooms" icon-off="ion-ios7-box-outline" icon-on="ion-ios7-box" href="#/tab/rooms">
-        <ion-nav-view name="tab-rooms"></ion-nav-view>
+    <!-- Wall Tab -->
+    <ion-tab title="{{ 'Wall' | translate }}" icon-off="ion-chatboxes" icon-on="ion-chatboxes" href="#/main/tabs/wall">
+        <ion-nav-view name="tab-wall"></ion-nav-view>
     </ion-tab>
 
-    <!-- Current Selected Chat Tab -->
-    <ion-tab title="Chat" icon-off="ion-ios7-chatboxes-outline" icon-on="ion-ios7-chatboxes" href="#/tab/chat">
-        <ion-nav-view name="tab-chat"></ion-nav-view>
+    <!-- Config Tab -->
+    <ion-tab title="{{ 'Config' | translate }}" icon-off="ion-wrench" icon-on="ion-wrench" href="#/main/tabs/config">
+        <ion-nav-view name="tab-config"></ion-nav-view>
     </ion-tab>
 
-    <!-- Logout Button -->
-    <ion-tab title="Logout" icon-off="ion-ios7-gear-outline" icon-on="ion-ios7-gear" ng-click="logout()" href="">
+    <!-- Resolve Tab -->
+    <ion-tab title="{{ 'Resolve' | translate }}" icon-off="ion-checkmark-round" icon-on="ion-checkmark-round" href="#/main/tabs/resolve">
+        <ion-nav-view name="tab-resolve"></ion-nav-view>
     </ion-tab>
-
 
 </ion-tabs>

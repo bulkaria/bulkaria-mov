@@ -113,8 +113,8 @@ angular.module('bulkaria-mov.controllers', ["firebase"])
     $log.info("Change Password Controller initialized");
 
     $scope.currentPassword = auth.getCurrentPassword();
-    $scope.newPassword = "1234";
-    $scope.newPasswordCtrl = "1234";
+    $scope.newPassword = "";
+    $scope.newPasswordCtrl = "";
 
     $scope.changePassword = function (currentPassword, newPassword) {
       $ionicLoading.show();
@@ -162,27 +162,50 @@ angular.module('bulkaria-mov.controllers', ["firebase"])
 
 }])
 
-.controller("GroupsCtrl", ["$rootScope", "$scope", "$state", "$log", "auth", "$firebaseObject", function ($rootScope, $scope, $state, $log, auth, $firebaseObject) {
+.controller("GroupsCtrl", ["$rootScope", "$scope", "$state", "$log", "auth", "groups", function ($rootScope, $scope, $state, $log, auth, groups) {
   $log.info("Groups Controller initialized");
 
-  var ref = auth.getFirebaseRef();
-  var groups = $firebaseObject(ref.child("groups"));
+  var groups = new groups(auth.getFirebaseRef().child("groups"));
+  $scope.finishRender = false;
 
   // to take an action after the data loads, use the $loaded() promise
   groups.$loaded().then(function () {
-    $log.info("loaded record:", groups.$id);
+    $log.info("loaded record:", groups.toString());
   });
 
   // To make the data available in the DOM, assign it to $scope
   $scope.groups = groups;
 
   // For three-way data bindings, bind it to the scope instead
-  groups.$bindTo($scope, "groups");
+  //groups.$bindTo($scope, "groups");
 
-  // TODO
+  $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+    $scope.finishRender = true; 
+  });
+  
   $scope.openGroup = function (groupId) {
-    $state.go('tabs', {
-      groupId: groupId
-    });
+    $rootScope.currentGroupId = groupId;
+    $state.go('main.tabs.wall');
   };
-}]);
+
+  $scope.$on("$destroy", function () {
+    groups.$destroy();
+  });
+
+}])
+
+.controller("GroupWallCtrl", ["$rootScope", "$scope", "auth", "$state", "$log", "groups", function ($rootScope, $scope, auth, $state, $log, groups) {
+  $log.info("Group Wall Controller initialized");
+
+}])
+
+.controller("GroupConfigCtrl", ["$rootScope", "$scope", "auth", "$state", "$log", "groups", function ($rootScope, $scope, auth, $state, $log, groups) {
+  $log.info("Group Config Controller initialized");
+
+}])
+
+.controller("GroupResolveCtrl", ["$rootScope", "$scope", "auth", "$state", "$log", "groups", function ($rootScope, $scope, auth, $state, $log, groups) {
+  $log.info("Group Resolve Controller initialized");
+
+}])
+;

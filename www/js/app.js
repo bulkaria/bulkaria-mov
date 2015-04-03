@@ -19,6 +19,7 @@ angular.module('bulkaria-mov', [
   'bulkaria-mov.services', 
   'bulkaria-mov.providers', 
   'bulkaria-mov.directives', 
+  'bulkaria-mov.group-service',   
   'gettext', 
   'angularUUID2'])
 
@@ -82,7 +83,7 @@ angular.module('bulkaria-mov', [
   })  
 
   // setup an abstract state for change password directive
-  .state('change-password', {
+  .state('main.change-password', {
     url: "/chgpwd",
     views: {
       'menuContent': {
@@ -90,21 +91,6 @@ angular.module('bulkaria-mov', [
         controller: 'ChangePasswordCtrl'
       }
     }    
-    /*
-    templateUrl: 'templates/change-password.html',
-    controller: 'ChangePasswordCtrl',
-    resolve: {
-      // controller will not be loaded until $requireAuth resolves
-      // Auth refers to our $firebaseAuth wrapper in the example above
-      "currentAuth": ["auth",
-        function (auth) {
-          // $requireAuth returns a promise so the resolve waits for it to complete
-          // If the promise is rejected, it will throw a $stateChangeError (see above)
-          //return auth.status().$requireAuth();
-          return auth.requireAuth();
-        }]
-    }
-    */
   })
   
   // setup an abstract state for the groups directive
@@ -116,21 +102,6 @@ angular.module('bulkaria-mov', [
         controller: 'GroupsCtrl'
       }
     }
-    /*    
-    templateUrl: 'templates/groups.html',
-    controller: 'GroupsCtrl',
-    resolve: {
-      // controller will not be loaded until $requireAuth resolves
-      // Auth refers to our $firebaseAuth wrapper in the example above
-      "currentAuth": ["auth",
-        function (auth) {
-          // $requireAuth returns a promise so the resolve waits for it to complete
-          // If the promise is rejected, it will throw a $stateChangeError (see above)
-          //return au th.status().$requireAuth();
-          return auth.requireAuth();
-        }]
-    }
-    */
   })
 
   .state('main.profile', {
@@ -144,52 +115,57 @@ angular.module('bulkaria-mov', [
   })
   
   // setup an abstract state for the tabs directive
-  .state('tab', {
-    url: "/tab",
+  .state('main.tabs', {
+    url: "/tabs",
     abstract: true,
     templateUrl: "templates/tabs.html",
-    resolve: {
-      // controller will not be loaded until $requireAuth resolves
-      // Auth refers to our $firebaseAuth wrapper in the example above
-      "currentAuth": ["auth",
-        function (auth) {
-          // $requireAuth returns a promise so the resolve waits for it to complete
-          // If the promise is rejected, it will throw a $stateChangeError (see above)
-          //return auth.status().$requireAuth();
-          return auth.requireAuth();
-        }]
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/tabs.html'
+      }
     }
   })
 
   // Each tab has its own nav history stack:
 
-  .state('tab.rooms', {
-    url: '/rooms',
+  .state('main.tabs.wall', {
+    url: '/wall',
     views: {
-      'tab-rooms': {
-        templateUrl: 'templates/tab-rooms.html',
-        controller: 'RoomsCtrl'
+      'tab-wall': {
+        templateUrl: 'templates/group-wall.html',
+        controller: 'GroupWallCtrl'
       }
     }
   })
 
-  .state('tab.chat', {
-    url: '/chat/:roomId',
+  .state('main.tabs.config', {
+    url: '/config',
     views: {
-      'tab-chat': {
-        templateUrl: 'templates/tab-chat.html',
-        controller: 'ChatCtrl'
+      'tab-config': {
+        templateUrl: 'templates/group-config.html',
+        controller: 'GroupConfigCtrl'
       }
     }
   })
+
+  .state('main.tabs.resolve', {
+    url: '/resolve',
+    views: {
+      'tab-resolve': {
+        templateUrl: 'templates/group-resolve.html',
+        controller: 'GroupResolveCtrl'
+      }
+    }
+  })
+  ;
 
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/login');
 
 }])
 
-.run(["$ionicPlatform", "$rootScope", "$log", "$location", "auth", "$ionicLoading", "$ionicHistory", "gettextCatalog", 
-  function ($ionicPlatform, $rootScope, $log, $location, auth, $ionicLoading, $ionicHistory, gettextCatalog) {
+.run(["$ionicPlatform", "$rootScope", "$log", "$state", "auth", "$ionicLoading", "$ionicHistory", "gettextCatalog", 
+  function ($ionicPlatform, $rootScope, $log, $state, auth, $ionicLoading, $ionicHistory, gettextCatalog) {
     $ionicPlatform.ready(function () {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -215,6 +191,9 @@ angular.module('bulkaria-mov', [
       // auth core init
       auth.init();
 
+      // Globals
+      $rootScope.currentGroupId = null;
+
       $rootScope.logout = function () {
         $log.info(auth.getCurrentUser().email + " logged out");
         $ionicLoading.show();
@@ -236,15 +215,15 @@ angular.module('bulkaria-mov', [
           $ionicLoading.hide();          
           $ionicHistory.clearCache();
           if(authData.provider === "password" && authData.password.isTemporaryPassword) {
-            $location.path('/main/chgpwd');
+            $state.go("main.change-password");
           } else {
             auth.clearCurrentPassword();
-            $location.path('/main/groups');
+            $state.go("main.groups");
           }
         } else {
           $ionicLoading.hide();
           $ionicHistory.clearCache();
-          $location.path('/login');
+          $state.go("login");
         }
       });
 

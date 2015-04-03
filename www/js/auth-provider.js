@@ -229,17 +229,11 @@ angular.module("bulkaria-mov.providers", ["firebase"])
           var encEmail = internals.encodeEmail(currentUser.email);
           if (snapshot.hasChild(encEmail)) {
             var userRef = firebaseRef.child("users").child(encEmail);
-            currentUser.status = "updated";
-            userRef.update(currentUser, function (error) {
-              if (error) {
-                $log.error("Update app user error: " + error);
-                if (typeof callback === "function") callback(error);
-              } else {
-                $log.info("The app user had been updated");
-                // get full data
-                internals.getUserData(function (error) {
-                  if (typeof callback === "function") callback(error);
-                });
+            // get full data
+            internals.getUserData(function (error) {
+              if(!error) {
+                currentUser.status = "updated";
+                userRef.update(currentUser, callback);                  
               }
             });
           } else {

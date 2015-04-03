@@ -12,7 +12,7 @@
       <ion-nav-view name="menuContent"></ion-nav-view>
     </ion-side-menu-content>
 
-    <ion-side-menu side="left">
+    <ion-side-menu side="left" expose-aside-when="large">
       <ion-content>
         <div class="item item-thumbnail-left item-royal">
           <img ng-src="{{user.picture}}" class="avatar" />
@@ -29,7 +29,7 @@
             <h2 translate>My Profile</h2>            
           </ion-item>          
           <ion-item class="item-icon-left" ng-if="user.provider === 'password'" nav-clear menu-close href="#/main/chgpwd">
-            <i class="ion-locked"></i>
+            <i class="icon ion-locked"></i>
             <h2 translate>Change Password</h2>            
           </ion-item>          
           <ion-item class="item-icon-left" nav-clear menu-close ng-click="logout()">

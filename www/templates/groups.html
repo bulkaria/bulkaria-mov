@@ -1,12 +1,19 @@
 <ion-view view-title="{{ 'Groups' | translate }}" hide-back-button="true">
   <ion-content>
-    <div class="list card" ng-repeat="group in groups">
-      <div class="item item-icon-left dark">
-        <i class="icon {{group.context-icon}}"></i>
-        <h2>{{group.name}}</h2>
-        <p>{{group.description}}</p>
+    <div class="list card" ng-repeat="group in groups" on-finish-render>
+      <div class="row">
+        <div class="col col-90 col-center">
+          <div class="item item-icon-left dark">
+            <i class="icon {{group.context_icon}}"></i>
+            <h2>{{group.name}}</h2>
+            <p>{{group.description}}</p>
+          </div>
+        </div>
+        <div class="col col-center tab-item" ng-click="openGroup(group.id)">
+          <i class="icon ion-chevron-right"></i>
+        </div>
       </div>
-      <div class="item item-image">
+      <div class="item item-image" ng-hide="!group.picture">
         <img ng-src="{{group.picture}}">
       </div>
       <div class="item item-icon-left balanced">
@@ -15,7 +22,8 @@
       </div>
     </div>
     <center>
-      <ion-spinner icon="spiral" ng-hide="groups.length"></ion-spinner>
+      <br/>
+      <ion-spinner icon="spiral" ng-hide="finishRender"></ion-spinner>
     </center>
   </ion-content>
 </ion-view>
