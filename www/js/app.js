@@ -13,13 +13,14 @@ document.addEventListener("deviceready", onDeviceReady, false);
 // 'bulkaria-mov.controllers' is found in controllers.js
 angular.module('bulkaria-mov', [
   'ionic', 
+  'ngCordova',
   'firebase', 
   'angularMoment', 
   'bulkaria-mov.controllers', 
   'bulkaria-mov.services', 
   'bulkaria-mov.providers', 
   'bulkaria-mov.directives', 
-  'bulkaria-mov.group-service',   
+  'bulkaria-mov.data-service',   
   'gettext', 
   'angularUUID2'])
 
@@ -33,13 +34,13 @@ angular.module('bulkaria-mov', [
     //showDelay: 500
 })
 
-.constant("firebaseUrl", "https://bulkaria-dev.firebaseio.com")
+.constant("ROOT", "https://bulkaria-dev.firebaseio.com")
 
-.config(["authProvider", "firebaseUrl", "$stateProvider", "$urlRouterProvider", function (authProvider, firebaseUrl, $stateProvider, $urlRouterProvider) {
+.config(["authProvider", "ROOT", "$stateProvider", "$urlRouterProvider", function (authProvider, ROOT, $stateProvider, $urlRouterProvider) {
   console.log("setting config");
   
   // set Firebase for auth provider
-  authProvider.setFirebaseRef(firebaseUrl);
+  authProvider.setFirebaseRef(ROOT);
   
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
@@ -164,8 +165,8 @@ angular.module('bulkaria-mov', [
 
 }])
 
-.run(["$ionicPlatform", "$rootScope", "$log", "$state", "auth", "$ionicLoading", "$ionicHistory", "gettextCatalog", 
-  function ($ionicPlatform, $rootScope, $log, $state, auth, $ionicLoading, $ionicHistory, gettextCatalog) {
+.run(["$ionicPlatform", "$rootScope", "$log", "$state", "auth", "$ionicLoading", "$ionicHistory", "gettextCatalog", "userFactory",
+  function ($ionicPlatform, $rootScope, $log, $state, auth, $ionicLoading, $ionicHistory, gettextCatalog, userFactory) {
     $ionicPlatform.ready(function () {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -193,6 +194,7 @@ angular.module('bulkaria-mov', [
 
       // Globals
       $rootScope.currentGroupId = null;
+      $rootScope.objUser = null;
 
       $rootScope.logout = function () {
         $log.info(auth.getCurrentUser().email + " logged out");
@@ -214,6 +216,7 @@ angular.module('bulkaria-mov', [
           $log.info("Logged in as: " + authData.uid);
           $ionicLoading.hide();          
           $ionicHistory.clearCache();
+          $rootScope.objUser = new userFactory(auth.getCurrentUserRef());
           if(authData.provider === "password" && authData.password.isTemporaryPassword) {
             $state.go("main.change-password");
           } else {
@@ -221,6 +224,7 @@ angular.module('bulkaria-mov', [
             $state.go("main.groups");
           }
         } else {
+          $rootScope.objUser = null;
           $ionicLoading.hide();
           $ionicHistory.clearCache();
           $state.go("login");

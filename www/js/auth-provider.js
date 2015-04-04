@@ -28,6 +28,14 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     services.getCurrentUser = function () {
       return currentUser;
     };
+    
+    services.getCurrentUserRef = function () {
+      return firebaseRef.child("users/" + internals.encodeEmail(currentUser.email));
+    };
+
+    services.getUserId = function () {
+      return internals.encodeEmail(currentUser.email);
+    };
 
     services.getCurrentPassword = function () {
       return currentPassword;

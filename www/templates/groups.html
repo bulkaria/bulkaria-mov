@@ -4,21 +4,21 @@
       <div class="row">
         <div class="col col-90 col-center">
           <div class="item item-icon-left dark">
-            <i class="icon {{group.context_icon}}"></i>
-            <h2>{{group.name}}</h2>
-            <p>{{group.description}}</p>
+            <i class="icon {{groups.getFkObject(group.$id).context_icon}}"></i>
+            <h2>{{groups.getFkObject(group.$id).name}}</h2>
+            <p>{{groups.getFkObject(group.$id).description}}</p>
           </div>
         </div>
-        <div class="col col-center tab-item" ng-click="openGroup(group.id)">
+        <div class="col col-center tab-item" ng-click="openGroup(group.$id)">
           <i class="icon ion-chevron-right"></i>
         </div>
       </div>
-      <div class="item item-image" ng-hide="!group.picture">
-        <img ng-src="{{group.picture}}">
+      <div class="item item-image" ng-hide="!groups.getFkObject(group.$id).picture">
+        <img ng-src="{{groups.getFkObject(group.$id).picture}}">
       </div>
       <div class="item item-icon-left balanced">
         <i class="icon ion-ios-information-outline"></i>
-        <p>{{group.notes}}</p>
+        <p>{{groups.getFkObject(group.$id).notes}}</p>
       </div>
     </div>
     <center>
