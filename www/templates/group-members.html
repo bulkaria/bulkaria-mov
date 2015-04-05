@@ -1,0 +1,42 @@
+<ion-view cache-view="false" view-title="{{ 'Members' | translate }}" hide-back-button="true">
+  <ion-content>
+    <div class="list list-inset">
+      <label class="item item-input">
+        <i class="icon ion-search placeholder-icon"></i>
+        <input type="text" placeholder="{{ 'Search' | translate }}">
+      </label>
+    </div>  
+    <!-- ion-list -->
+      <div class="list card" ng-repeat="member in members" on-finish-render>
+        <div class="item item-avatar">
+          <img ng-src="{{members.getFkObject(member.$id).picture}}">
+          <h2>{{members.getFkObject(member.$id).displayName}}</h2>
+          <p>place for details</p>
+        </div>
+        <div class="item tabs tabs-secondary tabs-icon-left">
+          <a class="tab-item" href="#">
+            <i class="icon ion-thumbsup"></i>
+            Like
+          </a>
+          <a class="tab-item" href="#">
+            <i class="icon ion-chatbox"></i>
+            Comment
+          </a>
+          <a class="tab-item" href="#">
+            <i class="icon ion-share"></i>
+            Share
+          </a>
+        </div>
+      </div>
+    <!-- /ion-list -->
+    <!-- ion-infinite-scroll>
+      on-infinite="loadMore()"
+      distance="1%">
+    </ion-infinite-scroll -->    
+    <center>
+      <br/>
+      <ion-spinner icon="spiral" ng-hide="finishRender"></ion-spinner>
+    </center>
+  </ion-content>
+</ion-view>
+

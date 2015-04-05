@@ -2,12 +2,12 @@
 angular.module("bulkaria-mov.providers", ["firebase"])
 
 .provider("auth", function backendProvider() {
-  var firebaseRef = null;
+  var rootRef = null;
   var currentUser = {};
   var currentPassword = null;
 
-  this.setFirebaseRef = function (firebaseUrl) {
-    firebaseRef = new Firebase(firebaseUrl);
+  this.setRootRef = function (firebaseUrl) {
+    rootRef = new Firebase(firebaseUrl);
   };
 
   this.$get = ["$rootScope", "$firebaseAuth", "$log", "uuid2", function ($rootScope, $firebaseAuth, $log, uuid2) {
@@ -16,7 +16,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     var firebaseAuth = null;
 
     services.init = function () {
-      firebaseAuth = $firebaseAuth(firebaseRef);
+      firebaseAuth = $firebaseAuth(rootRef);
       internals.clearCurrentUser();
       var authData = firebaseAuth.$getAuth();
       if (authData) {
@@ -30,7 +30,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     };
     
     services.getCurrentUserRef = function () {
-      return firebaseRef.child("users/" + internals.encodeEmail(currentUser.email));
+      return rootRef.child("users/" + internals.encodeEmail(currentUser.email));
     };
 
     services.getUserId = function () {
@@ -138,7 +138,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       if (currentUser.email) {
         var encEmail = internals.encodeEmail(currentUser.email);
         
-        firebaseRef.child("users").once("value", function (snapshot) {        
+        rootRef.child("users").once("value", function (snapshot) {        
           if (snapshot.hasChild(encEmail)) {
             var userData = snapshot.child(encEmail).val();
             for (var key in userData) {
@@ -170,8 +170,8 @@ angular.module("bulkaria-mov.providers", ["firebase"])
       }[provider];
     };
 
-    services.getFirebaseRef = function () {
-      return firebaseRef;
+    services.getRootRef = function () {
+      return rootRef;
     };
 
     services.signIn = function (callback) {
@@ -233,10 +233,10 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     // Save or update current user
     internals.updateAppUser = function (callback) {
       if (currentUser.email) {
-        firebaseRef.child("users").once("value", function (snapshot) {
+        rootRef.child("users").once("value", function (snapshot) {
           var encEmail = internals.encodeEmail(currentUser.email);
           if (snapshot.hasChild(encEmail)) {
-            var userRef = firebaseRef.child("users").child(encEmail);
+            var userRef = rootRef.child("users").child(encEmail);
             // get full data
             internals.getUserData(function (error) {
               if(!error) {
@@ -257,7 +257,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     internals.createAppUser = function (callback) {
       if (currentUser.email) {
         currentUser.status = "stored";
-        firebaseRef.child("users").child(internals.encodeEmail(currentUser.email)).set(currentUser, function (error) {
+        rootRef.child("users").child(internals.encodeEmail(currentUser.email)).set(currentUser, function (error) {
           if (error) {
             $log.error("Create app user error: " + error);
             currentUser.status = "error";
@@ -313,7 +313,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     };
 
     services.resetPassword = function (email, callback) {
-      firebaseRef.resetPassword({
+      rootRef.resetPassword({
         email: currentUser.email
       }, function (error) {
         if (typeof callback === "function") callback(error);
@@ -321,7 +321,7 @@ angular.module("bulkaria-mov.providers", ["firebase"])
     };
 
     services.changePassword = function (oldPassword, newPassword, callback) {
-      firebaseRef.changePassword({
+      rootRef.changePassword({
         email: currentUser.email,
         oldPassword: oldPassword,
         newPassword: newPassword

@@ -36,12 +36,27 @@ angular.module('bulkaria-mov', [
 
 .constant("ROOT", "https://bulkaria-dev.firebaseio.com")
 
-.config(["authProvider", "ROOT", "$stateProvider", "$urlRouterProvider", function (authProvider, ROOT, $stateProvider, $urlRouterProvider) {
+.config(["authProvider", "ROOT", "$stateProvider", "$urlRouterProvider", "$httpProvider", 
+  function (authProvider, ROOT, $stateProvider, $urlRouterProvider, $httpProvider) {
   console.log("setting config");
   
   // set Firebase for auth provider
-  authProvider.setFirebaseRef(ROOT);
+  authProvider.setRootRef(ROOT);
   
+  // interceptor for loading handling
+  $httpProvider.interceptors.push(function($rootScope) {
+    return {
+      request: function(config) {
+        $rootScope.$broadcast('loading:show')
+        return config
+      },
+      response: function(response) {
+        $rootScope.$broadcast('loading:hide')
+        return response
+      }
+    }
+  });
+
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
   // Set up the various states which the app can be in.
@@ -158,8 +173,27 @@ angular.module('bulkaria-mov', [
       }
     }
   })
-  ;
 
+  .state('main.tabs.members', {
+    url: '/members',
+    views: {
+      'tab-members': {
+        templateUrl: 'templates/group-members.html',
+        controller: 'GroupMembersCtrl'
+      }
+    }
+  })
+
+  .state('main.tabs.members2', {
+    url: '/members2',
+    views: {
+      'tab-members2': {
+        templateUrl: 'templates/group-members2.html',
+        controller: 'GroupMembers2Ctrl'
+      }
+    }
+  })  
+  ;
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/login');
 
@@ -180,12 +214,20 @@ angular.module('bulkaria-mov', [
       // To Resolve Bug
       ionic.Platform.fullScreen();
 
-     // traslate stuffs
+      // listeners for loading state handling
+      $rootScope.$on('loading:show', function() {
+        $ionicLoading.show();
+      });
+      $rootScope.$on('loading:hide', function() {
+        $ionicLoading.hide();
+      });
+
+      // traslate stuffs
       $log.info("Base language: " + gettextCatalog.baseLanguage);
       gettextCatalog.setCurrentLanguage('es');
       //gettextCatalog.debug = true;    
 
-      //$rootScope.ref = auth.getFirebaseRef();
+      //$rootScope.ref = auth.getRootRef();
       //$rootScope.ref = new Firebase("https://bulkaria-dev.firebaseio.com");
       //$rootScope.currentUser = auth.getCurrentUser();  
       

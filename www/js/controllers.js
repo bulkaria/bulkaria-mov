@@ -83,7 +83,7 @@ angular.module('bulkaria-mov.controllers', ["firebase"])
       var detachOn = $scope.$on('modal.request-hide', function (event, action) {
         if (action === "ok") {
           $ionicLoading.show();
-          auth.getFirebaseRef().resetPassword({
+          auth.getRootRef().resetPassword({
             email: $scope.user.email
           }, function (error) {
             $ionicLoading.hide();
@@ -162,15 +162,14 @@ angular.module('bulkaria-mov.controllers', ["firebase"])
 
 }])
 
-.controller("GroupsCtrl", ["$rootScope", "$scope", "$state", "$log", "auth", "$firebaseArray", "$firebaseObject", "fkArray",
-  function ($rootScope, $scope, $state, $log, auth, $firebaseArray, $firebaseObject, fkArray) {
+.controller("GroupsCtrl", ["$rootScope", "$scope", "$state", "$log", "auth",
+  function ($rootScope, $scope, $state, $log, auth) {
 
   $log.info("Groups Controller initialized");
 
   $scope.finishRender = false;
 
   $scope.groups = $rootScope.objUser.getGroups();
-
 
   $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
     $scope.finishRender = true; 
@@ -195,6 +194,39 @@ angular.module('bulkaria-mov.controllers', ["firebase"])
 
 .controller("GroupResolveCtrl", ["$rootScope", "$scope", "auth", "$state", "$log", function ($rootScope, $scope, auth, $state, $log) {
   $log.info("Group Resolve Controller initialized");
+
+}])
+
+.controller("GroupMembersCtrl", ["$rootScope", "$scope", "auth", "$state", "$log", "groupFactory", function ($rootScope, $scope, auth, $state, $log, groupFactory) {
+  $log.info("Group Members Controller initialized");
+
+  var groupObj = new groupFactory($rootScope.currentGroupId);
+  $scope.finishRender = false;
+  $scope.members = [];
+
+  $scope.members = groupObj.getMembers();
+
+  $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+    $scope.finishRender = true; 
+  });
+
+}])
+
+.controller("GroupMembers2Ctrl", ["$rootScope", "$scope", "auth", "$state", "$log", "groupFactory", function ($rootScope, $scope, auth, $state, $log, groupFactory) {
+  $log.info("Group Members Controller initialized");
+
+  var groupObj = new groupFactory($rootScope.currentGroupId);
+  $scope.finishRender = false;
+  $scope.pattern = "";
+  $scope.members = [];
+
+  groupObj.membersArray().then(function(mArray) {
+    $scope.members = mArray;
+  });  
+
+  $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+    $scope.finishRender = true; 
+  });
 
 }])
 ;
