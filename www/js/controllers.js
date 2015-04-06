@@ -197,6 +197,7 @@ angular.module('bulkaria-mov.controllers', ["firebase"])
 
 }])
 
+/*
 .controller("GroupMembersCtrl", ["$rootScope", "$scope", "auth", "$state", "$log", "groupFactory", function ($rootScope, $scope, auth, $state, $log, groupFactory) {
   $log.info("Group Members Controller initialized");
 
@@ -211,19 +212,20 @@ angular.module('bulkaria-mov.controllers', ["firebase"])
   });
 
 }])
+*/
 
-.controller("GroupMembers2Ctrl", ["$rootScope", "$scope", "auth", "$state", "$log", "groupFactory", function ($rootScope, $scope, auth, $state, $log, groupFactory) {
+.controller("GroupMembersCtrl", ["$rootScope", "$scope", "auth", "$state", "$log", "groupFactory", function ($rootScope, $scope, auth, $state, $log, groupFactory) {
   $log.info("Group Members Controller initialized");
 
   var groupObj = new groupFactory($rootScope.currentGroupId);
   $scope.finishRender = false;
-  $scope.pattern = "";
   $scope.members = [];
 
+  // get a promise for members array
   groupObj.membersArray().then(function(mArray) {
     $scope.members = mArray;
   });  
-
+  
   $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
     $scope.finishRender = true; 
   });

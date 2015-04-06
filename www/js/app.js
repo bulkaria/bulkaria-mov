@@ -183,16 +183,6 @@ angular.module('bulkaria-mov', [
       }
     }
   })
-
-  .state('main.tabs.members2', {
-    url: '/members2',
-    views: {
-      'tab-members2': {
-        templateUrl: 'templates/group-members2.html',
-        controller: 'GroupMembers2Ctrl'
-      }
-    }
-  })  
   ;
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/login');

@@ -51,6 +51,7 @@ angular.module("bulkaria-mov.data-service", ["firebase"])
     return $firebaseObject.call(this, this.ref);
   }
 
+  // firebaseArray for members
   groupFactory.prototype.getMembers = function() {
     if(!this.members) {
       this.members = new fkArray(this.ref.child("members"), this.ref.root().child("users"));
@@ -59,6 +60,7 @@ angular.module("bulkaria-mov.data-service", ["firebase"])
     return this.members;
   };
 
+  // js array with minimal data of user members - Best performance for lists
   groupFactory.prototype.membersArray = function() {
     // create a promise
     var def = $q.defer();
@@ -72,13 +74,13 @@ angular.module("bulkaria-mov.data-service", ["firebase"])
       mSnap.forEach(function(ss) {
         mLen++; // to control when promise is complete         
         // search user record for member
-        var uRef = ss.ref().root().child("users/" + ss.key());
-        uRef.once("value", function(uSnap) {
+        ss.ref().root().child("users/" + ss.key()).once("value", function(uSnap) {
           // push an object with parcial user data in returning array
           var u = uSnap.val();
           if(u) {
             mArray.push({key: ss.key(), name: u.displayName, picture: u.picture});
           } else {
+            // TODO this is for debug, remove in prod
             mArray.push({key: ss.key(), name: ss.key(), picture: null});
           }
           if(mArray.length==mLen) {

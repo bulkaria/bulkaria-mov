@@ -3,14 +3,14 @@
     <div class="list list-inset">
       <label class="item item-input">
         <i class="icon ion-search placeholder-icon"></i>
-        <input type="text" placeholder="{{ 'Search' | translate }}">
+        <input type="text" placeholder="{{ 'Search' | translate }}" ng-model="search.name" />
       </label>
     </div>  
     <!-- ion-list -->
-      <div class="list card" ng-repeat="member in members" on-finish-render>
+      <div class="list card" ng-repeat="member in members | filter:search" on-finish-render>
         <div class="item item-avatar">
-          <img ng-src="{{members.getFkObject(member.$id).picture}}">
-          <h2>{{members.getFkObject(member.$id).displayName}}</h2>
+          <img ng-src="{{member.picture}}">
+          <h2>{{member.name}}</h2>
           <p>place for details</p>
         </div>
         <div class="item tabs tabs-secondary tabs-icon-left">
@@ -39,4 +39,3 @@
     </center>
   </ion-content>
 </ion-view>
-
