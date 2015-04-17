@@ -38,11 +38,12 @@ angular.module('bulkaria-mov', [
 
 .config(["authProvider", "ROOT", "$stateProvider", "$urlRouterProvider", "$httpProvider", 
   function (authProvider, ROOT, $stateProvider, $urlRouterProvider, $httpProvider) {
+  
   console.log("setting config");
   
   // set Firebase for auth provider
   authProvider.setRootRef(ROOT);
-  
+
   // interceptor for loading handling
   $httpProvider.interceptors.push(function($rootScope) {
     return {
@@ -57,6 +58,7 @@ angular.module('bulkaria-mov', [
     }
   });
 
+  console.log("State Provider config");
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
   // Set up the various states which the app can be in.
@@ -184,84 +186,94 @@ angular.module('bulkaria-mov', [
     }
   })
   ;
+    
+  console.log("Other wise");
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/login');
-
+    
 }])
 
 .run(["$ionicPlatform", "$rootScope", "$log", "$state", "auth", "$ionicLoading", "$ionicHistory", "gettextCatalog", "userFactory",
   function ($ionicPlatform, $rootScope, $log, $state, auth, $ionicLoading, $ionicHistory, gettextCatalog, userFactory) {
-    $ionicPlatform.ready(function () {
-      // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-      // for form inputs)
-      if (window.cordova && window.cordova.plugins.Keyboard) {
-        cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-      }
-      if (window.StatusBar) {
-        // org.apache.cordova.statusbar required
-        StatusBar.styleDefault();
-      }
-      // To Resolve Bug
-      ionic.Platform.fullScreen();
-
-      // listeners for loading state handling
-      $rootScope.$on('loading:show', function() {
-        $ionicLoading.show();
-      });
-      $rootScope.$on('loading:hide', function() {
-        $ionicLoading.hide();
-      });
-
-      // traslate stuffs
-      $log.info("Base language: " + gettextCatalog.baseLanguage);
-      gettextCatalog.setCurrentLanguage('es');
-      //gettextCatalog.debug = true;    
-
-      //$rootScope.ref = auth.getRootRef();
-      //$rootScope.ref = new Firebase("https://bulkaria-dev.firebaseio.com");
-      //$rootScope.currentUser = auth.getCurrentUser();  
-      
-      // auth core init
-      auth.init();
-
-      // Globals
-      $rootScope.currentGroupId = null;
-      $rootScope.objUser = null;
-
-      $rootScope.logout = function () {
-        $log.info(auth.getCurrentUser().email + " logged out");
-        $ionicLoading.show();
-        auth.signOut();
-      };
-
-      $rootScope.$on("$stateChangeError", function (event, toState, toParams, fromState, fromParams, error) {
-        // We can catch the error thrown when the $requireAuth promise is rejected
-        // and redirect the user back to the home page
-        if (error === "AUTH_REQUIRED") {
-          $ionicHistory.clearCache();
-          $location.path("/login");
+    console.log("App run");    
+    try {
+      $ionicPlatform.ready(function () {
+        // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+        // for form inputs)
+        if (window.cordova && window.cordova.plugins.Keyboard) {
+          cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
         }
-      });
+        if (window.StatusBar) {
+          // org.apache.cordova.statusbar required
+          StatusBar.styleDefault();
+        }
+        // To Resolve Bug
+        ionic.Platform.fullScreen();
 
-      auth.onAuth(function (authData) {
-        if (authData) {
-          $log.info("Logged in as: " + authData.uid);
-          $ionicLoading.hide();          
-          $ionicHistory.clearCache();
-          $rootScope.objUser = new userFactory(auth.getCurrentUserRef());
-          if(authData.provider === "password" && authData.password.isTemporaryPassword) {
-            $state.go("main.change-password");
-          } else {
-            auth.clearCurrentPassword();
-            $state.go("main.groups");
-          }
-        } else {
-          $rootScope.objUser = null;
+        // listeners for loading state handling
+        $rootScope.$on('loading:show', function() {
+          $ionicLoading.show();
+        });
+        $rootScope.$on('loading:hide', function() {
           $ionicLoading.hide();
-          $ionicHistory.clearCache();
-          $state.go("login");
-        }
-      });
+        });
 
-    });                       
+        // traslate stuffs
+        console.log("Translate config");      
+        $log.info("Base language: " + gettextCatalog.baseLanguage);
+        gettextCatalog.setCurrentLanguage('es');
+        //gettextCatalog.debug = true;    
+
+        //$rootScope.ref = auth.getRootRef();
+        //$rootScope.ref = new Firebase("https://bulkaria-dev.firebaseio.com");
+        //$rootScope.currentUser = auth.getCurrentUser();  
+
+        console.log("Auth core init");      
+        // auth core init
+        auth.init();
+
+        // Globals
+        $rootScope.currentGroupId = null;
+        $rootScope.objUser = null;
+
+        $rootScope.logout = function () {
+          $log.info(auth.getCurrentUser().email + " logged out");
+          $ionicLoading.show();
+          auth.signOut();
+        };
+
+        $rootScope.$on("$stateChangeError", function (event, toState, toParams, fromState, fromParams, error) {
+          // We can catch the error thrown when the $requireAuth promise is rejected
+          // and redirect the user back to the home page
+          if (error === "AUTH_REQUIRED") {
+            $ionicHistory.clearCache();
+            $location.path("/login");
+          }
+        });
+
+        auth.onAuth(function (authData) {
+          if (authData) {
+            $log.info("Logged in as: " + authData.uid);
+            $ionicLoading.hide();          
+            $ionicHistory.clearCache();
+            $rootScope.objUser = new userFactory(auth.getCurrentUserRef());
+            if(authData.provider === "password" && authData.password.isTemporaryPassword) {
+              $state.go("main.change-password");
+            } else {
+              auth.clearCurrentPassword();
+              $state.go("main.groups");
+            }
+          } else {
+            $rootScope.objUser = null;
+            $ionicLoading.hide();
+            $ionicHistory.clearCache();
+            $state.go("login");
+          }
+        });
+
+      });  
+      
+    } catch(e) {
+      console.log(e);
+    }
 }])

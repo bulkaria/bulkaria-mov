@@ -26,6 +26,8 @@ build/Release
 # http://git-scm.com/docs/gitignore
 
 node_modules/
+# Platforms from ionic project
 platforms/
+# Cordova plugins from ionic project
 plugins/
 
